@@ -26,14 +26,14 @@ function Workspace() {
     setAnchorEl(null);
   };
   return (
-    <Box>
+    <Box sx={{ ml: 5 }}>
       <Button
-              id="basic-button-workspaces"
-              aria-controls={open ? "basic-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-              onClick={handleClick}
-              endIcon={<ExpandMoreIcon />}
+        id="basic-button-workspaces"
+        aria-controls={open ? "basic-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
+        onClick={handleClick}
+        endIcon={<ExpandMoreIcon />}
       >
         Workspaces
       </Button>

@@ -1,7 +1,3 @@
-.trello-logo{
-    cursor: pointer;
-}
-
-.trello-logo:hover{
-    background-color: gray;
+.trello-logo {
+  cursor: pointer;
 }

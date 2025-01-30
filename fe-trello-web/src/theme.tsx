@@ -1,18 +1,75 @@
 import { createTheme } from "@mui/material/styles";
-import { red } from "@mui/material/colors";
+import { blue, cyan, deepOrange, orange } from "@mui/material/colors";
 
-// A custom theme for this app
+// import { BorderColor } from "@mui/icons-material";
+
 const theme = createTheme({
-  cssVariables: true,
-  palette: {
-    primary: {
-      main: "#556cd6",
+  // light/dark
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: blue,
+        secondary: deepOrange,
+      },
     },
-    secondary: {
-      main: "#19857b",
+    dark: {
+      palette: {
+        primary: cyan,
+        secondary: orange,
+      },
     },
-    error: {
-      main: red.A400,
+  },
+
+  // font chữ button thuộc Mui
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          "*::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "*::-webkit-scrollbar-thumb": {
+            backgroundColor: "#bdc3c7",
+            borderRadius: "8px",
+          },
+          "*::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#00b894",
+            borderRadius: "8px",
+          },
+          "*::-webkit-scrollbar-track": {
+            backgroundColor: "#f1f1f1",
+          },
+        },
+      },
+    },
+
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          //fontSize: "1rem",
+          textTransform: "none",
+          fontWeight: "700",
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: ({ theme }) => {
+          return {
+            color: theme.palette.primary.main,
+            fontSize: "0.875rem",
+            ".MuiOutlinedInput-notchedOutline": {
+              borderColor: theme.palette.primary.light,
+            },
+            "&:hover": {
+              ".MuiOutlinedInput-notchedOutline": {
+                borderColor: theme.palette.primary.main,
+              },
+            },
+          };
+        },
+      },
     },
   },
 });
