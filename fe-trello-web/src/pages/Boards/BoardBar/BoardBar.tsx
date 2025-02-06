@@ -31,7 +31,7 @@ function BoardBar() {
           gap: 2,
           paddingX: 2,
           overflowX: "auto",
-          borderTop: "1px solid #2196F3",
+          // borderTop: "1px solid #2196F3",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -72,7 +72,7 @@ function BoardBar() {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button variant="outlined" endIcon={<PersonAddAlt1Icon/>}>
+          <Button variant="outlined" endIcon={<PersonAddAlt1Icon />}>
             Invite
           </Button>
           {/*  */}

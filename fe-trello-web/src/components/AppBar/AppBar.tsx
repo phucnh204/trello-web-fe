@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import ModeSelect from "../ModeSelect";
+import ModeSelect from "../ModeSelect/ModeSelect";
 import "./style.css";
 import Workspace from "./Menus/Workspace";
 import Recent from "./Menus/Recent";
