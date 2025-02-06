@@ -3,7 +3,23 @@ import React from "react";
 import { Box } from "@mui/material";
 import Card from "./Card/Card";
 
-function ListCards() {
+interface CardProps {
+  _id: string;
+  boardId: string;
+  columnId: string;
+  title: string;
+  description: string | null;
+  cover: string | null;
+  memberIds: string[];
+  comments: string[];
+  attachments: string[];
+}
+
+// Định nghĩa kiểu cho props của ListCards
+interface ListCardsProps {
+  cards: CardProps[]; // cards là một mảng các object Card
+}
+function ListCards({ cards }: ListCardsProps) {
   return (
     <Box
       sx={{
@@ -15,8 +31,9 @@ function ListCards() {
       }}
     >
       {/* Card 1 */}
-      <Card />
-      <Card temporaryHideMedia />
+      {cards?.map((card) => (
+        <Card key={card._id} card={card} />
+      ))}
     </Box>
   );
 }

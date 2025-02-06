@@ -1,8 +1,9 @@
 import { Box } from "@mui/material";
 import ListColumns from "./ListColumns/ListColumns";
+import { BoardProps } from "../../../apis/type-mock-data";
 //
 
-function BoardContent() {
+const BoardContent: React.FC<BoardProps> = ({ board }) => {
   return (
     <Box
       sx={{
@@ -12,9 +13,9 @@ function BoardContent() {
         p: "10px 0",
       }}
     >
-      <ListColumns />
+      <ListColumns columns={board?.columns} />
     </Box>
   );
-}
+};
 
 export default BoardContent;

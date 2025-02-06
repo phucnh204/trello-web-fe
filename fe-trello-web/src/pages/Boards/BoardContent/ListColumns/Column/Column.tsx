@@ -24,7 +24,27 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import ListCards from "./ListCards/ListCards";
 
-function Column() {
+interface Card {
+  _id: string;
+  boardId: string;
+  columnId: string;
+  title: string;
+  description: string | null;
+  cover: string | null;
+  memberIds: string[];
+  comments: string[];
+  attachments: string[];
+}
+interface ColumnProps {
+  column: {
+    _id: string;
+    boardId: string;
+    title: string;
+    cardOrderIds: string[];
+    cards: Card[];
+  };
+}
+const Column: React.FC<ColumnProps> = ({ column }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -85,7 +105,7 @@ function Column() {
             cursor: "pointer",
           }}
         >
-          Column title
+          {column?.title}
         </Typography>
         <Box sx={{}}>
           <Tooltip title="More options">
@@ -156,7 +176,7 @@ function Column() {
       </Box>
 
       {/* Card content */}
-      <ListCards />
+      <ListCards cards={column.cards} />
       {/* Card footer */}
       <Box
         sx={{
@@ -174,6 +194,6 @@ function Column() {
       </Box>
     </Box>
   );
-}
+};
 
 export default Column;
