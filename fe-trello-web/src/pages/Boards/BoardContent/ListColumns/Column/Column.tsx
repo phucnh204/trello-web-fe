@@ -23,7 +23,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import ListCards from "./ListCards/ListCards";
-
+import { mapOrder } from "../../../../../utils/sort";
 interface Card {
   _id: string;
   boardId: string;
@@ -53,6 +53,9 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, "_id");
+
   return (
     <Box
       sx={{
@@ -176,7 +179,7 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
       </Box>
 
       {/* Card content */}
-      <ListCards cards={column.cards} />
+      <ListCards cards={orderedCards} />
       {/* Card footer */}
       <Box
         sx={{

@@ -1,9 +1,10 @@
 import { Box } from "@mui/material";
 import ListColumns from "./ListColumns/ListColumns";
 import { BoardProps } from "../../../apis/type-mock-data";
-//
+import { mapOrder } from "../../../utils/sort";
 
 const BoardContent: React.FC<BoardProps> = ({ board }) => {
+  const orderedColumns = mapOrder(board?.columns, board?.columnOrderIds, "_id");
   return (
     <Box
       sx={{
@@ -13,7 +14,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         p: "10px 0",
       }}
     >
-      <ListColumns columns={board?.columns} />
+      <ListColumns columns={orderedColumns} />
     </Box>
   );
 };
