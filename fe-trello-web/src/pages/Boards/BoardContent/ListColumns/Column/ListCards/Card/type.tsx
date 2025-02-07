@@ -8,6 +8,7 @@ export interface CardProps {
   memberIds: string[];
   comments: string[];
   attachments: string[];
+  FE_PlacehoderCard: boolean;
 }
 
 export interface CardComponentProps {

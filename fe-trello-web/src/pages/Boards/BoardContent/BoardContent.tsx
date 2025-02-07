@@ -12,6 +12,7 @@ import {
   DragOverlay,
   defaultDropAnimationSideEffects,
   DragOverEvent,
+  closestCorners,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ import {
 } from "./ListColumns/type";
 import Column from "./ListColumns/Column/Column";
 import Card from "./ListColumns/Column/ListCards/Card/Card";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
   CARD: "ACTIVE_DRAG_ITEM_TYPE_CARD",
@@ -38,6 +39,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     ColumnsProps["columns"]
   >([]);
   const [activeDragItemId, setActiveDragItemId] = useState<string | null>(null);
+  console.log(activeDragItemId);
   const [activeDragItemType, setActiveDragItemType] = useState<string | null>(
     null
   );
@@ -105,8 +107,41 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
         const nextColumns = cloneDeep(preColumns);
 
-        // const nextActiveColumn = next
+        const nextActiveColumn = nextColumns.find(
+          (column: IColumn) => column._id === activeColumn._id
+        );
 
+        const nextOverColumn = nextColumns.find(
+          (column: IColumn) => column._id === overColumn._id
+        );
+
+        if (nextActiveColumn) {
+          nextActiveColumn.cards = nextActiveColumn.cards.filter(
+            (card: ICard) => card._id !== activeDraggingCardId
+          );
+
+          
+
+          nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
+            (card: ICard) => card._id
+          );
+        }
+
+        if (nextOverColumn) {
+          nextOverColumn.cards = nextOverColumn.cards.filter(
+            (card: ICard) => card._id !== activeDraggingCardId
+          );
+
+          nextOverColumn.cards = nextOverColumn.cards.toSpliced(
+            newCardIndex,
+            0,
+            activeDraggingCardData
+          );
+
+          nextOverColumn.cardOrderIds = nextOverColumn.cards.map(
+            (card: ICard) => card._id
+          );
+        }
         return nextColumns;
       });
     }
@@ -114,12 +149,48 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
   // Kết thúc kéo - drag 1 phần tử
   const handleDragEnd = (event: DragEndEvent) => {
-    console.log("handleDragEnd: ", event);
+    // console.log("handleDragEnd: ", event);
 
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
+      const { active, over } = event;
+      if (!active || !over) return;
+
+      const activeColumn = findColumnByCardId(active.id.toString());
+      const overColumn = findColumnByCardId(over.id.toString());
+
+      if (!activeColumn || !overColumn || activeColumn._id !== overColumn._id)
+        return;
+
+      const oldIndex = activeColumn.cards.findIndex(
+        (card) => card._id === active.id
+      );
+      const newIndex = activeColumn.cards.findIndex(
+        (card) => card._id === over.id
+      );
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setOrderedColumnsState((prevColumns) => {
+          const newColumns = cloneDeep(prevColumns);
+          const targetColumn = newColumns.find(
+            (col: IColumn) => col._id === activeColumn._id
+          );
+          if (targetColumn) {
+            targetColumn.cards = arrayMove(
+              targetColumn.cards,
+              oldIndex,
+              newIndex
+            );
+            targetColumn.cardOrderIds = targetColumn.cards.map(
+              (card: ICard) => card._id
+            );
+          }
+          return newColumns;
+        });
+      }
       return;
     }
 
+    // Xử lý kéo thả column như cũ
     const { active, over } = event;
     if (!over) return;
     if (active.id !== over.id) {
@@ -167,6 +238,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       onDragOver={handleDragOver}
       onDragStart={handleDragStart}
       sensors={sensors}
+      collisionDetection={closestCorners}
     >
       <Box
         sx={{
