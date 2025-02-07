@@ -6,24 +6,30 @@ import CardMedia from "@mui/material/CardMedia";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import ReviewsIcon from "@mui/icons-material/Reviews";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-
-interface CardProps {
-  _id: string;
-  boardId: string;
-  columnId: string;
-  title: string;
-  description: string | null;
-  cover: string | null;
-  memberIds: string[];
-  comments: string[];
-  attachments: string[];
-}
-
-interface CardComponentProps {
-  card: CardProps;
-}
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { CardComponentProps } from "./type";
 
 const Card: React.FC<CardComponentProps> = ({ card }) => {
+  const {
+    setNodeRef,
+    listeners,
+    attributes,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: card._id,
+    data: { ...card },
+  });
+
+  const dndKitCardStyles = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+    border: isDragging ? '1px solid #2ecc71' : undefined,
+  };
+
   const shouldShowCardActiopns = () => {
     return (
       !!card?.memberIds.length ||
@@ -34,6 +40,10 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
 
   return (
     <MuiCard
+      ref={setNodeRef}
+      style={dndKitCardStyles}
+      {...listeners}
+      {...attributes}
       sx={{
         cursor: "pointer",
         boxShadow: "0 1px 1px rgba(0, 0, 0, 0.2)",

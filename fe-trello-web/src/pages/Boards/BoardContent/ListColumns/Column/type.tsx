@@ -1,4 +1,4 @@
-export interface CardProps {
+export interface Card {
   _id: string;
   boardId: string;
   columnId: string;
@@ -9,7 +9,12 @@ export interface CardProps {
   comments: string[];
   attachments: string[];
 }
-
-export interface CardComponentProps {
-  card: CardProps;
+export interface ColumnProps {
+  column: {
+    _id: string;
+    boardId: string;
+    title: string;
+    cardOrderIds: string[];
+    cards: Card[];
+  };
 }

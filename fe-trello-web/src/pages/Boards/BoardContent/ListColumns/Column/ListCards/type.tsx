@@ -10,6 +10,7 @@ export interface CardProps {
   attachments: string[];
 }
 
-export interface CardComponentProps {
-  card: CardProps;
+// Định nghĩa kiểu cho props của ListCards
+export interface ListCardsProps {
+  cards: CardProps[];
 }

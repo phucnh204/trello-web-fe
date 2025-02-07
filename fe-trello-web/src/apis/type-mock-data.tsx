@@ -16,6 +16,10 @@ export interface BoardProps {
         _id: string;
         columnId: string;
         title: string;
+        boardId?: string;
+        description?: string;
+        cover?: string;
+        memberIds?: string[];
       }[];
     }[];
   };
