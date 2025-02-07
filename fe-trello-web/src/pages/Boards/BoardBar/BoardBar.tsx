@@ -5,6 +5,7 @@ import AddToDriveIcon from "@mui/icons-material/AddToDrive";
 import BoltIcon from "@mui/icons-material/Bolt";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import { BoardProps } from "../../../apis/type-mock-data";
 const MENU_STYLE = {
   color: "primary.main",
   bgcolor: "white",
@@ -18,7 +19,7 @@ const MENU_STYLE = {
     bgcolor: "primary.50",
   },
 };
-function BoardBar() {
+const BoardBar: React.FC<BoardProps> = ({ board }) => {
   return (
     <div>
       <Box
@@ -31,21 +32,21 @@ function BoardBar() {
           gap: 2,
           paddingX: 2,
           overflowX: "auto",
-          borderTop: "1px solid #2196F3",
+          // borderTop: "1px solid #2196F3",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Chip
             sx={MENU_STYLE}
             icon={<DashboardIcon />}
-            label="PhucnhCode"
+            label={board?.title}
             onClick={() => {}}
           />
           {/*  */}
           <Chip
             sx={MENU_STYLE}
             icon={<VpnLockIcon />}
-            label="Public/Private Workspace"
+            label={board?.type}
             onClick={() => {}}
           />
           {/*  */}
@@ -72,7 +73,7 @@ function BoardBar() {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button variant="outlined" endIcon={<PersonAddAlt1Icon/>}>
+          <Button variant="outlined" endIcon={<PersonAddAlt1Icon />}>
             Invite
           </Button>
           {/*  */}
@@ -97,6 +98,6 @@ function BoardBar() {
       </Box>
     </div>
   );
-}
+};
 
 export default BoardBar;
