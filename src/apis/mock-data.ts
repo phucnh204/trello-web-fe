@@ -19,8 +19,16 @@ interface Card {
 //   cardOrderIds: string[];
 //   cards: Card[];
 // }
+export interface BoardProps {
+  _id: string;
+  title: string;
+  description?: string;
+  type?: string;
+  columns?: any[];
+  columnOrderIds?: string[];
+}
 
-const mockData = {
+export const mockData = {
   board: {
     _id: "board-id-01",
     title: "Dự án Trello Clone",
