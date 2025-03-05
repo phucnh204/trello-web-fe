@@ -19,14 +19,14 @@ interface Card {
 //   cardOrderIds: string[];
 //   cards: Card[];
 // }
-export interface BoardProps {
-  _id: string;
-  title: string;
-  description?: string;
-  type?: string;
-  columns?: any[];
-  columnOrderIds?: string[];
-}
+// export interface BoardProps {
+//   _id: string;
+//   title: string;
+//   description?: string;
+//   type?: string;
+//   columns?: any[];
+//   columnOrderIds?: string[];
+// }
 
 export const mockData = {
   board: {
@@ -78,7 +78,7 @@ export const mockData = {
 const generateMockData = () => {
   const columns = mockData.board.columns;
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 40; i++) {
     const cardId = `card-id-${i + 1}`;
     const columnIndex = i % 4;
     const column = columns[columnIndex];
@@ -89,7 +89,10 @@ const generateMockData = () => {
       columnId: column._id,
       title: `Công việc ${i + 1}`,
       description: `Mô tả cho công việc ${i + 1}`,
-      cover: i % 5 === 0 ? `https://example.com/cover-${i + 1}.png` : null,
+      cover:
+        i % 5 === 0
+          ? `https://www.numacom.fr/assets/img/content/2023/03/bien-utiliser-trello-pour-vos-projets-digitaux-2fc784c-1920x1440.jpg`
+          : null,
       memberIds: [`user-dev-${(i % 3) + 1}`, `user-tester-${(i % 2) + 1}`],
       comments: [
         `Bình luận 1 cho công việc ${i + 1}`,
