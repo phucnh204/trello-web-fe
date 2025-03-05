@@ -23,7 +23,8 @@ import {
 } from "./ListColumns/type";
 import Column from "./ListColumns/Column/Column";
 import Card from "./ListColumns/Column/ListCards/Card/Card";
-import { cloneDeep, isEmpty } from "lodash";
+import { cloneDeep } from "lodash";
+// import { ColumnsProps } from './../../../../fe-trello-web/src/pages/Boards/BoardContent/ListColumns/type';
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
   CARD: "ACTIVE_DRAG_ITEM_TYPE_CARD",
@@ -62,10 +63,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       // Kéo một Card
       setActiveDragItemType(ACTIVE_DRAG_ITEM_TYPE.CARD);
       setActiveDragItemData(currentData as ICard);
-    } else {
+    } else if (currentData && "_id" in currentData && "title" in currentData) {
       // Kéo một Column
       setActiveDragItemType(ACTIVE_DRAG_ITEM_TYPE.COLUMN);
-      setActiveDragItemData(currentData as ColumnsProps);
+      setActiveDragItemData(currentData as IColumn);
     }
   };
 
@@ -93,14 +94,13 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           (card) => card._id === overCardId
         );
 
-        let newCardIndex: number;
         const isBelowOverItem =
           active.rect.current.translated &&
           active.rect.current.translated.top > over.rect.top + over.rect.height;
 
         const modifier = isBelowOverItem ? 1 : 0;
 
-        newCardIndex =
+        const newCardIndex =
           overCardIndex >= 0
             ? overCardIndex + modifier
             : overColumn?.cards.length + 1;
@@ -120,8 +120,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
             (card: ICard) => card._id !== activeDraggingCardId
           );
 
-          
-
           nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
             (card: ICard) => card._id
           );
@@ -132,10 +130,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
             (card: ICard) => card._id !== activeDraggingCardId
           );
 
-          nextOverColumn.cards = nextOverColumn.cards.toSpliced(
+          nextOverColumn.cards.splice(
             newCardIndex,
             0,
-            activeDraggingCardData
+            activeDraggingCardData as ICard
           );
 
           nextOverColumn.cardOrderIds = nextOverColumn.cards.map(
@@ -261,7 +259,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD &&
             activeDragItemData &&
             "_id" in activeDragItemData && (
-              <Card card={activeDragItemData as ICard} />
+              <Card
+                card={activeDragItemData as ICard}
+                
+              />
             )}
         </DragOverlay>
       </Box>
