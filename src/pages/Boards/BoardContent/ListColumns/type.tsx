@@ -8,6 +8,7 @@ export interface Card {
   memberIds: string[];
   comments: string[];
   attachments: string[];
+  FE_PlaceholderCard?: boolean;
 }
 
 export interface Column {
@@ -24,5 +25,3 @@ export interface Column {
 export interface ColumnsProps {
   columns: Column[];
 }
-
-
