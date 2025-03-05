@@ -23,7 +23,7 @@ import {
 } from "./ListColumns/type";
 import Column from "./ListColumns/Column/Column";
 import Card from "./ListColumns/Column/ListCards/Card/Card";
-import { cloneDeep, isEmpty } from "lodash";
+import { cloneDeep } from "lodash";
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
   CARD: "ACTIVE_DRAG_ITEM_TYPE_CARD",
@@ -119,8 +119,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           nextActiveColumn.cards = nextActiveColumn.cards.filter(
             (card: ICard) => card._id !== activeDraggingCardId
           );
-
-          
 
           nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
             (card: ICard) => card._id

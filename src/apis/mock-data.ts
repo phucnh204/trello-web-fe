@@ -1,218 +1,118 @@
+interface Card {
+  _id: string;
+  boardId: string;
+  columnId: string;
+  title: string;
+  description: string;
+  cover: string | null;
+  memberIds: string[];
+  comments: string[];
+  attachments: string[];
+  status: string;
+  dueDate: string;
+}
+
+// interface Column {
+//   _id: string;
+//   boardId: string;
+//   title: string;
+//   cardOrderIds: string[];
+//   cards: Card[];
+// }
+// export interface BoardProps {
+//   _id: string;
+//   title: string;
+//   description?: string;
+//   type?: string;
+//   columns?: any[];
+//   columnOrderIds?: string[];
+// }
+
 export const mockData = {
   board: {
     _id: "board-id-01",
-    title: "phucnh code Trello",
-    description: "Frontend with Typescript",
-    type: "Public", // 'private'
-    ownerIds: [], // Những users là Admin của board
-    memberIds: [], // Những users là member bình thường của board
+    title: "Dự án Trello Clone",
+    description: "Quản lý công việc nhóm với mô hình Kanban",
+    type: "Private",
+    ownerIds: ["user-admin-01"],
+    memberIds: ["user-dev-01", "user-dev-02", "user-tester-01"],
     columnOrderIds: [
       "column-id-01",
       "column-id-02",
       "column-id-03",
       "column-id-04",
-    ], // Thứ tự sắp xếp / vị trí của các Columns trong 1 boards
+    ],
     columns: [
       {
         _id: "column-id-01",
         boardId: "board-id-01",
-        title: "To Do Column 01",
-        cardOrderIds: [
-          "card-id-01",
-          "card-id-02",
-          "card-id-03",
-          "card-id-04",
-          "card-id-05",
-          "card-id-06",
-          "card-id-07",
-        ],
-        cards: [
-          {
-            _id: "card-id-01",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 01",
-            description: "Markdown Syntax (sẽ ở khóa nâng cao nhé)",
-            cover:
-              "https://trungquandev.com/wp-content/uploads/2022/07/fair-mern-stack-advanced-banner-trungquandev.jpg",
-            memberIds: ["test-user-id-01"],
-            comments: ["test comment 01", "test comment 02"],
-            attachments: [
-              "test attachment 01",
-              "test attachment 02",
-              "test attachment 03",
-            ],
-          },
-          {
-            _id: "card-id-02",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 02",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-03",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 03",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-04",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 04",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-05",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 05",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-06",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 06",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-07",
-            boardId: "board-id-01",
-            columnId: "column-id-01",
-            title: "Title of card 07",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-        ],
+        title: "Việc cần làm",
+        cardOrderIds: [] as string[], // Chỉ định kiểu dữ liệu cho cardOrderIds
+        cards: [] as Card[], // Chỉ định kiểu dữ liệu cho cards
       },
       {
         _id: "column-id-02",
         boardId: "board-id-01",
-        title: "Inprogress Column 02",
-        cardOrderIds: ["card-id-08", "card-id-09", "card-id-10"],
-        cards: [
-          {
-            _id: "card-id-08",
-            boardId: "board-id-01",
-            columnId: "column-id-02",
-            title: "Title of card 08",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-09",
-            boardId: "board-id-01",
-            columnId: "column-id-02",
-            title: "Title of card 09",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-10",
-            boardId: "board-id-01",
-            columnId: "column-id-02",
-            title: "Title of card 10",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-        ],
+        title: "Đang thực hiện",
+        cardOrderIds: [] as string[],
+        cards: [] as Card[],
       },
       {
         _id: "column-id-03",
         boardId: "board-id-01",
-        title: "Done Column 03",
-        cardOrderIds: ["card-id-11", "card-id-12", "card-id-13"],
-        cards: [
-          {
-            _id: "card-id-11",
-            boardId: "board-id-01",
-            columnId: "column-id-03",
-            title: "Title of card 11",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-12",
-            boardId: "board-id-01",
-            columnId: "column-id-03",
-            title: "Title of card 12",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-          {
-            _id: "card-id-13",
-            boardId: "board-id-01",
-            columnId: "column-id-03",
-            title: "Title of card 13",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-          },
-        ],
+        title: "Hoàn thành",
+        cardOrderIds: [] as string[],
+        cards: [] as Card[],
       },
       {
         _id: "column-id-04",
         boardId: "board-id-01",
-        title: "Empty Column 04",
-        cardOrderIds: ["column-id-04-placeholder-card"],
-        cards: [
-          {
-            _id: "column-id-04-placeholder-card",
-            boardId: "board-id-01",
-            columnId: "column-id-04",
-            // title: "Title of card 14",
-            description: null,
-            cover: null,
-            memberIds: [],
-            comments: [],
-            attachments: [],
-            FE_PlacehoderCard:true
-          },
-        ],
+        title: "Tồn đọng",
+        cardOrderIds: [] as string[],
+        cards: [] as Card[],
       },
     ],
   },
 };
+
+const generateMockData = () => {
+  const columns = mockData.board.columns;
+
+  for (let i = 0; i < 40; i++) {
+    const cardId = `card-id-${i + 1}`;
+    const columnIndex = i % 4;
+    const column = columns[columnIndex];
+
+    const card: Card = {
+      _id: cardId,
+      boardId: "board-id-01",
+      columnId: column._id,
+      title: `Công việc ${i + 1}`,
+      description: `Mô tả cho công việc ${i + 1}`,
+      cover:
+        i % 5 === 0
+          ? `https://www.numacom.fr/assets/img/content/2023/03/bien-utiliser-trello-pour-vos-projets-digitaux-2fc784c-1920x1440.jpg`
+          : null,
+      memberIds: [`user-dev-${(i % 3) + 1}`, `user-tester-${(i % 2) + 1}`],
+      comments: [
+        `Bình luận 1 cho công việc ${i + 1}`,
+        `Bình luận 2 cho công việc ${i + 1}`,
+      ],
+      attachments: i % 4 === 0 ? [`attachment-${i + 1}.pdf`] : [],
+      status:
+        columnIndex === 0
+          ? "pending"
+          : columnIndex === 1
+          ? "in-progress"
+          : columnIndex === 2
+          ? "done"
+          : "backlog",
+      dueDate: `2025-03-${(i % 30) + 1}`,
+    };
+
+    column.cards.push(card); 
+    column.cardOrderIds.push(cardId);
+  }
+};
+
+generateMockData();
