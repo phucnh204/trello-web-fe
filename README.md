@@ -8,6 +8,7 @@
   
 **Công Nghệ Sử Dụng**: React, Vite, Material-UI, DnD Kit(Drag and Drop)
 **Mục Đích Dự Án:** Dự án này được tạo ra với mục đích xây dựng một ứng dụng quản lý công việc tương tự Trello.Đây cũng là cơ hội để tôi thực hành và nâng cao kỹ năng lập trình với React, Vite, và Material-UI, đồng thời tìm hiểu về cách triển khai tính năng kéo thả (drag and drop) trong ứng dụng web.
+
 **Chi Tiết Dự Án:**
 
       1. Thiết Kế và Quyết Định Bố Cục Trực Quan: Sử dụng Material-UI để thiết kế giao diện người dùng với các component như Cards, Buttons,...
