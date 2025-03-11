@@ -1,50 +1,16 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Ứng Dụng Quản Lý Công Việc (Trello Clone)**  (12-2024 - 02-2025)
+   
+- Link GitHub: https://github.com/phucnh204/trello-web-fe
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- Link Web: https://trello-web-fe-git-main-phucnh204s-projects.vercel.app/
+  
+**Công Nghệ Sử Dụng**: React, Vite, Material-UI, DnD Kit(Drag and Drop)
+**Mục Đích Dự Án:** Dự án này được tạo ra với mục đích xây dựng một ứng dụng quản lý công việc tương tự Trello.Đây cũng là cơ hội để tôi thực hành và nâng cao kỹ năng lập trình với React, Vite, và Material-UI, đồng thời tìm hiểu về cách triển khai tính năng kéo thả (drag and drop) trong ứng dụng web.
+**Chi Tiết Dự Án:**
+      1. Thiết Kế và Quyết Định Bố Cục Trực Quan: Sử dụng Material-UI để thiết kế giao diện người dùng với các component như Cards, Buttons,...
+      2. Phát Triển Tính Năng: Kéo Thả (Drag and Drop) ử dụng thư viện DnD Kit để triển khai tính năng kéo thả các task giữa các cột dễ dàng sắp xếp và quản lý công việc.
+      3. Tối Ưu Hóa Hiệu Suất: Sử dụng Vite làm công cụ build, giúp tăng tốc độ phát triển và tối ưu hóa thời gian build và reload.
+      
+ Qua dự án này, tôi đã nắm cách sử dụng React kết hợp với Vite để tạo ra các ứng dụng web hiệu suất cao. Học được cách quản lý dự án cá nhân từ giai đoạn lên ý tưởng, thiết kế, phát triển, đến triển khai.
