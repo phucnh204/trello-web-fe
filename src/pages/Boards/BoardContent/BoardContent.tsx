@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import ListColumns from "./ListColumns/ListColumns";
 import { BoardProps } from "../../../apis/type-mock-data";
 import { mapOrder } from "../../../utils/sort";
@@ -24,6 +24,9 @@ import {
 import Column from "./ListColumns/Column/Column";
 import Card from "./ListColumns/Column/ListCards/Card/Card";
 import { cloneDeep } from "lodash";
+import AllBoards from "./AllBoards";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import EventNoteIcon from "@mui/icons-material/EventNote";
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
@@ -229,41 +232,92 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       },
     }),
   };
+  const [showSidebar, setShowSidebar] = useState(true);
 
   return (
-    <DndContext
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-      onDragStart={handleDragStart}
-      sensors={sensors}
-      collisionDetection={closestCorners}
-    >
-      <Box
+    <>
+      <Button
+        // variant="contained"
+        startIcon={
+          showSidebar ? <KeyboardDoubleArrowLeftIcon /> : <EventNoteIcon />
+        }
+        onClick={() => setShowSidebar((prev) => !prev)}
         sx={{
-          bgcolor: (theme) =>
-            theme.palette.mode === "dark" ? "#34495e" : "#1976d2",
-          height: "calc(100vh - 55px - 65px)",
-          p: "10px 0",
+          position: "absolute",
+          top: 70,
+          left: showSidebar ? 400 : 10,
+          zIndex: 10,
+          transition: "left 0.3s ease",
         }}
       >
-        <ListColumns columns={orderedColumnsState} />
-        <DragOverlay dropAnimation={customDropAnimation}>
-          {!activeDragItemType && null}
+        {showSidebar ? "Ẩn bớt" : "Kế hoạch của bạn"}
+      </Button>
 
-          {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN &&
-            activeDragItemData &&
-            "cardOrderIds" in activeDragItemData && (
-              <Column column={activeDragItemData as IColumn} />
-            )}
+      <Box sx={{ display: "flex", height: "calc(100vh - 55px - 65px)" }}>
+        {/* LEFT SIDEBAR - ASIDE */}
+        <Box
+          component="aside"
+          sx={{
+            width: 400,
+            position: "absolute",
+            top: 0,
+            left: showSidebar ? 0 : -400,
+            height: "100%",
+            // borderRight: "1px solid #ccc",
+            p: 2,
+            overflowY: "auto",
+            bgcolor: "primary.50",
+            transition: "left 0.3s ease",
+            zIndex: 9,
+          }}
+        >
+          <AllBoards />
+        </Box>
 
-          {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD &&
-            activeDragItemData &&
-            "_id" in activeDragItemData && (
-              <Card card={activeDragItemData as ICard} />
-            )}
-        </DragOverlay>
+        {/* MAIN CONTENT */}
+        <Box
+          sx={{
+            flex: 1,
+            marginLeft: showSidebar ? "400px" : 0,
+            transition: "margin-left 0.3s ease",
+          }}
+        >
+          <DndContext
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragStart={handleDragStart}
+            sensors={sensors}
+            collisionDetection={closestCorners}
+          >
+            <Box
+              sx={{
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark" ? "#34495e" : "#1976d2",
+                height: "calc(100vh - 55px - 65px)",
+                p: "10px 0",
+              }}
+            >
+              <ListColumns columns={orderedColumnsState} />
+              <DragOverlay dropAnimation={customDropAnimation}>
+                {!activeDragItemType && null}
+
+                {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN &&
+                  activeDragItemData &&
+                  "cardOrderIds" in activeDragItemData && (
+                    <Column column={activeDragItemData as IColumn} />
+                  )}
+
+                {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD &&
+                  activeDragItemData &&
+                  "_id" in activeDragItemData && (
+                    <Card card={activeDragItemData as ICard} />
+                  )}
+              </DragOverlay>
+            </Box>
+          </DndContext>
+        </Box>
       </Box>
-    </DndContext>
+    </>
   );
 };
 

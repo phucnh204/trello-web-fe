@@ -1,25 +1,12 @@
-import { Avatar, AvatarGroup, Box, Button, Chip, Tooltip } from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import VpnLockIcon from "@mui/icons-material/VpnLock";
-import AddToDriveIcon from "@mui/icons-material/AddToDrive";
-import BoltIcon from "@mui/icons-material/Bolt";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import { Avatar, AvatarGroup, Box, Button, Tooltip } from "@mui/material";
+// import VpnLockIcon from "@mui/icons-material/VpnLock";
+// import AddToDriveIcon from "@mui/icons-material/AddToDrive";
+// import BoltIcon from "@mui/icons-material/Bolt";
+// import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import { BoardProps } from "../../../apis/type-mock-data";
-const MENU_STYLE = {
-  color: "primary.main",
-  bgcolor: "white",
-  border: "none",
-  px: "5px",
-  borderRadius: "3px",
-  "& .MuiSvgIcon-root": {
-    color: "primary.main",
-  },
-  "&:hover": {
-    bgcolor: "primary.50",
-  },
-};
-const BoardBar: React.FC<BoardProps> = ({ board }) => {
+
+const BoardBar: React.FC<BoardProps> = () => {
   return (
     <div>
       <Box
@@ -36,40 +23,35 @@ const BoardBar: React.FC<BoardProps> = ({ board }) => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Chip
-            sx={MENU_STYLE}
-            icon={<DashboardIcon />}
-            label={board?.title}
-            onClick={() => {}}
-          />
+          
           {/*  */}
-          <Chip
+          {/* <Chip
             sx={MENU_STYLE}
             icon={<VpnLockIcon />}
             label={board?.type}
             onClick={() => {}}
-          />
+          /> */}
           {/*  */}
-          <Chip
+          {/* <Chip
             sx={MENU_STYLE}
             icon={<AddToDriveIcon />}
             label="Add to Google Drive"
             onClick={() => {}}
-          />
+          /> */}
           {/*  */}
-          <Chip
+          {/* <Chip
             sx={MENU_STYLE}
             icon={<BoltIcon />}
             label="Automation"
             onClick={() => {}}
-          />
+          /> */}
           {/*  */}
-          <Chip
+          {/* <Chip
             sx={MENU_STYLE}
             icon={<FilterListIcon />}
             label="Filter"
             onClick={() => {}}
-          />
+          /> */}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
