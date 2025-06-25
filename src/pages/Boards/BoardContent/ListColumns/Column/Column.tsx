@@ -194,7 +194,7 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
             justifyContent: "space-between",
           }}
         >
-          <Button startIcon={<AddCardIcon />}>Add new card</Button>
+          <Button startIcon={<AddCardIcon />}>Thêm nội dung mới</Button>
           <Tooltip title="Drag to move">
             <DragHandleIcon sx={{ cursor: "pointer" }} />
           </Tooltip>

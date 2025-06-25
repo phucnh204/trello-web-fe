@@ -10,6 +10,11 @@ import {
   IconButton,
   CircularProgress,
   Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import axiosClient from "../../../apis/axiosClient";
@@ -28,7 +33,11 @@ interface Board {
 const AllBoards = () => {
   const [showBoards] = useState(true);
   const [open, setOpen] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Board | null>(null);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editedTitle, setEditedTitle] = useState<string>("");
+    
   const queryClient = useQueryClient();
   // Lấy danh sách boards từ API
   const { data = [], isLoading } = useQuery<Board[]>({
@@ -45,16 +54,16 @@ const AllBoards = () => {
   });
 
   // Hàm xử lý xoá bảng
-  const handleDelete = async (boardId: string) => {
-    try {
-      await axiosClient.delete(`/boards/${boardId}`);
-      enqueueSnackbar("Đã xoá kế hoạch thành công", { variant: "success" });
-      queryClient.invalidateQueries({ queryKey: ["boards"] });
-    } catch (err) {
-      enqueueSnackbar("Xoá kế hoạch thất bại", { variant: "error" });
-      console.error(err);
-    }
-  };
+//   const handleDelete = async (boardId: string) => {
+//     try {
+//       await axiosClient.delete(`/boards/${boardId}`);
+//       enqueueSnackbar("Đã xoá kế hoạch thành công", { variant: "success" });
+//       queryClient.invalidateQueries({ queryKey: ["boards"] });
+//     } catch (err) {
+//       enqueueSnackbar("Xoá kế hoạch thất bại", { variant: "error" });
+//       console.error(err);
+//     }
+//   };
 
   if (isLoading)
     return (
@@ -73,7 +82,22 @@ const AllBoards = () => {
           Đang tải dữ liệu...
         </Typography>
       </Box>
-    );
+        );
+    
+        const handleUpdateTitle = async (boardId: string) => {
+          if (!editedTitle.trim()) return;
+
+          try {
+            await axiosClient.put(`/boards/${boardId}`, { title: editedTitle });
+            enqueueSnackbar("Đã cập nhật tiêu đề", { variant: "success" });
+            queryClient.invalidateQueries({ queryKey: ["boards"] });
+          } catch (err) {
+            enqueueSnackbar("Cập nhật thất bại"+err, { variant: "error" });
+          } finally {
+            setEditingId(null);
+          }
+        };
+          
 
   return (
     <Box sx={{ display: "flex", height: "98%" }}>
@@ -127,7 +151,7 @@ const AllBoards = () => {
                   }}
                 >
                   <StickyNote2 color="primary" />
-                  <Typography
+                  {/* <Typography
                     variant="subtitle1"
                     color="text.primary"
                     fontWeight={600}
@@ -138,12 +162,42 @@ const AllBoards = () => {
                     }}
                   >
                     {board.title}
-                  </Typography>
+                  </Typography> */}
+                  {editingId === board._id ? (
+                    <TextField
+                      size="small"
+                      value={editedTitle}
+                      onChange={(e) => setEditedTitle(e.target.value)}
+                      onBlur={() => handleUpdateTitle(board._id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleUpdateTitle(board._id);
+                      }}
+                      autoFocus
+                      sx={{ input: { fontWeight: 600, fontSize: "1rem" } }}
+                    />
+                  ) : (
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                      onClick={() => {
+                        setEditingId(board._id);
+                        setEditedTitle(board.title);
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {board.title}
+                    </Typography>
+                  )}
                 </Link>
 
                 <Fade in={hoveredId === board._id}>
                   <IconButton
-                    onClick={() => handleDelete(board._id)}
+                    onClick={() => setDeleteTarget(board)}
                     sx={{
                       ml: 1,
                       color: "error.main",
@@ -167,6 +221,38 @@ const AllBoards = () => {
           </Stack>
         </Collapse>
       </Box>
+
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>Xác nhận xoá</DialogTitle>
+        <DialogContent>
+          Bạn có chắc chắn muốn xoá bảng <strong>{deleteTarget?.title}</strong>{" "}
+          không? Và tất cả các thẻ và công việc liên quan sẽ bị xoá vĩnh viễn.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>Huỷ</Button>
+          <Button
+            color="error"
+            onClick={async () => {
+              if (!deleteTarget) return;
+              try {
+                await axiosClient.delete(`/boards/${deleteTarget._id}`);
+                enqueueSnackbar("Đã xoá kế hoạch thành công", {
+                  variant: "success",
+                });
+                queryClient.invalidateQueries({ queryKey: ["boards"] });
+              } catch (err) {
+                enqueueSnackbar("Xoá kế hoạch thất bại" + err, {
+                  variant: "error",
+                });
+              } finally {
+                setDeleteTarget(null);
+              }
+            }}
+          >
+            Xoá
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

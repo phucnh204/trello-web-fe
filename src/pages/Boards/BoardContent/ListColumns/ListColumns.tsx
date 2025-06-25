@@ -8,6 +8,8 @@ import {
 import { ColumnsProps } from "./type";
 
 const ListColumns: React.FC<ColumnsProps> = ({ columns }) => {
+  console.log("📦 columns propsvvvvvvvvvvvvvvvvvvvvvvvvvvv:", columns); // ✅ Phải ra mảng có 1 column
+
   return (
     <SortableContext
       items={columns?.map((c) => c._id)}
@@ -47,7 +49,7 @@ const ListColumns: React.FC<ColumnsProps> = ({ columns }) => {
             }}
             startIcon={<AddToDriveIcon />}
           >
-            Add new column 1
+            Thêm nội dung
           </Button>
         </Box>
       </Box>
