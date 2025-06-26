@@ -1,22 +1,18 @@
-import React from "react";
-import {
-  Cloud,
-  ContentCopy,
-  ContentCut,
-  ContentPaste,
-} from "@mui/icons-material";
+import React, { useState } from "react";
 import {
   Box,
   Button,
-  Divider,
+  Dialog,
+  DialogActions,
+  DialogTitle,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-//
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -24,10 +20,18 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import ListCards from "./ListCards/ListCards";
 import { mapOrder } from "../../../../../utils/sort";
-import { ColumnProps } from "./type";
+import { ColumnProps, IColumn } from "./type";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-const Column: React.FC<ColumnProps> = ({ column }) => {
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { columnAPI } from "../../../../../apis/column.api";
+import { enqueueSnackbar } from "notistack";
+
+const Column: React.FC<ColumnProps> = ({
+  column,
+  onColumnTitleUpdated,
+  onColumnDeleted,
+}) => {
   const {
     setNodeRef,
     listeners,
@@ -47,16 +51,87 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
     opacity: isDragging ? 0.5 : undefined,
   };
 
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState(column.title);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const open = Boolean(anchorEl);
+  const queryClient = useQueryClient();
+  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, "_id");
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, "_id");
+  const updateColumnTitleMutation = useMutation({
+    mutationFn: ({ columnId, title }: { columnId: string; title: string }) =>
+      columnAPI.updateColumn(columnId, title),
+
+    onSuccess: () => {
+      enqueueSnackbar("Đã cập nhật tiêu đề cột", { variant: "success" });
+
+      queryClient.setQueryData<IColumn[]>(
+        ["columns", column.boardId],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return oldData.map((col) =>
+            col._id === column._id ? { ...col, title: newTitle } : col
+          );
+        }
+      );
+
+      onColumnTitleUpdated?.(column._id, newTitle);
+    },
+
+    onError: () => {
+      enqueueSnackbar("Cập nhật tiêu đề thất bại", { variant: "error" });
+    },
+  });
+
+  const handleSaveTitle = () => {
+    if (!newTitle.trim() || newTitle === column.title) {
+      setIsEditingTitle(false);
+      setNewTitle(column.title);
+      return;
+    }
+
+    updateColumnTitleMutation.mutate({ columnId: column._id, title: newTitle });
+    setIsEditingTitle(false);
+  };
+
+  const deleteColumnMutation = useMutation({
+    mutationFn: (columnId: string) => columnAPI.deleteColumn(columnId),
+    onSuccess: () => {
+      enqueueSnackbar("Đã xóa cột", { variant: "success" });
+
+      // Gọi callback để parent component cập nhật state
+      onColumnDeleted?.(column._id);
+
+      // Đóng menu dropdown
+      handleClose();
+    },
+    onError: () => {
+      enqueueSnackbar("Xóa cột thất bại", { variant: "error" });
+    },
+  });
+
+  const handleDeleteColumn = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteColumnMutation.mutate(column._id);
+    setOpenDeleteDialog(false);
+  };
+
+  const handleCancelDelete = () => {
+    setOpenDeleteDialog(false);
+  };
 
   return (
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
@@ -79,17 +154,15 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
             borderRadius: "10px",
           },
           "&::-webkit-scrollbar-thumb": {
-            // display: "none",
             position: "relative",
             right: 0,
           },
         }}
       >
-        {/* Card hearder */}
+        {/* Card header */}
         <Box
           sx={{
             height: "55px",
-            // width: "calc(100% + 1px)",
             p: 2,
             display: "flex",
             alignItems: "center",
@@ -99,22 +172,39 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
               theme.palette.mode === "dark" ? "#333643" : "#000",
             position: "sticky",
             top: 0,
-
             backgroundColor: "white",
             zIndex: 1,
-            // padding: "10px 0",
-            // fontWeight: "bold",
           }}
         >
-          <Typography
-            sx={{
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            {column?.title}
-          </Typography>
-          <Box sx={{}}>
+          {isEditingTitle ? (
+            <TextField
+              variant="standard"
+              value={newTitle}
+              autoFocus
+              onBlur={handleSaveTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveTitle();
+                if (e.key === "Escape") {
+                  setNewTitle(column.title);
+                  setIsEditingTitle(false);
+                }
+              }}
+              inputProps={{
+                style: { fontWeight: "bold", fontSize: 16 },
+                maxLength: 50,
+              }}
+            />
+          ) : (
+            <Typography
+              sx={{ fontWeight: "bold", cursor: "pointer" }}
+              onClick={() => setIsEditingTitle(true)}
+            >
+              {newTitle}
+            </Typography>
+          )}
+
+          <Box>
             <Tooltip title="More options">
               <Button
                 id="basic-column-dropdown"
@@ -135,55 +225,32 @@ const Column: React.FC<ColumnProps> = ({ column }) => {
                 "aria-labelledby": "basic-column-dropdown",
               }}
             >
-              <MenuItem>
-                <ListItemIcon>
-                  <AddCardIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Add new card</ListItemText>
-              </MenuItem>
-              {/*  */}
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentCut fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Cut</ListItemText>
-              </MenuItem>
-              {/*  */}
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentCopy fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Copy</ListItemText>
-              </MenuItem>
-              {/*  */}
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentPaste fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Paste</ListItemText>
-              </MenuItem>
-              {/*  */}
-              <Divider />
-              {/*  */}
-              <MenuItem>
+              <MenuItem onClick={handleDeleteColumn}>
                 <ListItemIcon>
                   <DeleteOutlineIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Remove this column</ListItemText>
+                <ListItemText>Xóa cột</ListItemText>
               </MenuItem>
-              {/*  */}
-              <MenuItem>
-                <ListItemIcon>
-                  <Cloud fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Archive this column</ListItemText>
-              </MenuItem>
+              <Dialog open={openDeleteDialog} onClose={handleCancelDelete}>
+                <DialogTitle>Bạn có chắc muốn xóa cột này không?</DialogTitle>
+                <DialogActions>
+                  <Button onClick={handleCancelDelete}>Hủy</Button>
+                  <Button
+                    onClick={handleConfirmDelete}
+                    // color="red"
+                    variant="outlined"
+                  >
+                    Xóa
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </Menu>
           </Box>
         </Box>
 
         {/* Card content */}
         <ListCards cards={orderedCards} />
+
         {/* Card footer */}
         <Box
           sx={{

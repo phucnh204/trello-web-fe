@@ -5,10 +5,11 @@ import "./style.css";
 // import Workspace from "./Menus/Workspace";
 // import Recent from "./Menus/Recent";
 // import Templates from "./Menus/Templates";
-import { Badge, TextField, Tooltip, useTheme } from "@mui/material";
+import { Badge, Tooltip, useTheme } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Profiles from "./Menus/Profiles";
+import { blue } from "@mui/material/colors";
 // import Starred from "./Menus/Starred";
 // import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 // import { DashboardIcon } from '@mui/icons-material/Dashboard';
@@ -61,6 +62,19 @@ function AppBar() {
             borderRadius: "8px",
           }}
         />
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <span
+            style={{ fontSize: "1.5rem", fontWeight: "bold", color: blue[700] }}
+          >
+            Task Online
+          </span>
+        </Box>
 
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
           {/* <Workspace />
@@ -85,7 +99,7 @@ function AppBar() {
 
       {/* Search & Icons */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <TextField
+        {/* <TextField
           id="search-bar"
           placeholder="Search..."
           variant="outlined"
@@ -105,7 +119,7 @@ function AppBar() {
               color: textColor, // Đổi màu label của input
             },
           }}
-        />
+        /> */}
 
         <ModeSelect />
 

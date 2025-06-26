@@ -24,4 +24,8 @@ export interface Column {
 
 export interface ColumnsProps {
   columns: Column[];
+  boardId: string;
+  onColumnAdded?: (newColumn: Column) => void;
+  onColumnTitleUpdated?: (columnId: string, newTitle: string) => void;
+  onColumnDeleted: (deletedColumnId: string) => void;
 }

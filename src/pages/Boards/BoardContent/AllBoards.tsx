@@ -9,19 +9,19 @@ import {
   Button,
   IconButton,
   CircularProgress,
-  Fade,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+
 import axiosClient from "../../../apis/axiosClient";
 import StickyNote2 from "@mui/icons-material/StickyNote2";
 import BoardCreateModal from "../../../components/BoardCreateModal/BoardCreateModal";
 import { enqueueSnackbar } from "notistack";
 import { CloseRounded } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 interface Board {
   _id: string;
@@ -51,10 +51,10 @@ const AllBoards = () => {
   const [editedTitle, setEditedTitle] = useState<string>("");
   const [originalTitle, setOriginalTitle] = useState<string>("");
   const [navigatingId, setNavigatingId] = useState<string | null>(null); // Thêm state cho loading
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
   // Lấy danh sách boards từ API
   const { data = [], isLoading } = useQuery<Board[]>({
     queryKey: ["boards"],
@@ -72,11 +72,11 @@ const AllBoards = () => {
   // Handle click với smooth transition
   const handleCardClick = async (boardId: string) => {
     setNavigatingId(boardId);
+    setSelectedBoardId(boardId);
 
-    // Thêm một chút delay để animation smooth hơn
     setTimeout(() => {
       navigate(`/boards/${boardId}`);
-    }, 150);
+    }, 100);
   };
 
   if (isLoading)
@@ -151,25 +151,16 @@ const AllBoards = () => {
 
               return (
                 <Box key={board._id} sx={{ position: "relative" }}>
-                  {/* Thay thế Link bằng div với onClick handler */}
                   <Box
-                    onClick={() =>
-                      !editingId && !isNavigating && handleCardClick(board._id)
-                    }
+                    onClick={() => !editingId && handleCardClick(board._id)}
                     sx={{
                       textDecoration: "none",
                       flex: 1,
                       display: "flex",
                       alignItems: "center",
                       gap: 1.5,
-                      cursor:
-                        editingId === board._id || isNavigating
-                          ? "default"
-                          : "pointer",
-                      pointerEvents:
-                        editingId === board._id || isNavigating
-                          ? "none"
-                          : "auto",
+                      cursor: editingId === board._id ? "default" : "pointer",
+                      pointerEvents: editingId === board._id ? "none" : "auto",
                     }}
                   >
                     <Card
@@ -185,8 +176,12 @@ const AllBoards = () => {
                         gap: 1,
                         p: 1.5,
                         borderRadius: 1,
-                        boxShadow: 1,
-                        transition: "all 0.2s ease-in-out",
+                        boxShadow: selectedBoardId === board._id ? 6 : 1, // nổi bật hơn
+                        border:
+                          selectedBoardId === board._id
+                            ? "2.5px solid #0c66e4"
+                            : "none", // viền xanh
+                        transition: "all 0.2s cubic-bezier(.4,2,.6,1)",
                         backgroundColor: backgroundColor,
                         opacity: isNavigating ? 0.7 : 1,
                         transform: isNavigating
@@ -196,13 +191,11 @@ const AllBoards = () => {
                           : "none",
                         "&:hover": !isNavigating
                           ? {
-                              boxShadow: 2,
+                              boxShadow: selectedBoardId === board._id ? 8 : 2,
                             }
                           : {},
                       }}
                     >
-                      {/* Bỏ loading overlay */}
-
                       <StickyNote2 sx={{ color: textColor }} />
 
                       {editingId === board._id ? (
@@ -265,32 +258,28 @@ const AllBoards = () => {
                         </Typography>
                       )}
 
-                      {hoveredId === board._id &&
-                        editingId !== board._id &&
-                        !isNavigating && (
-                          <Fade in={hoveredId === board._id}>
-                            <IconButton
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setDeleteTarget(board);
-                              }}
-                              sx={{
-                                ml: 1,
-                                color: textColor,
-                                opacity: 0.8,
-                                transition: "all 0.2s ease",
-                                "&:hover": {
-                                  bgcolor: "rgba(255,255,255,0.2)",
-                                  opacity: 1,
-                                  transform: "scale(1.1)",
-                                },
-                              }}
-                            >
-                              <CloseRounded fontSize="small" />
-                            </IconButton>
-                          </Fade>
-                        )}
+                      {editingId !== board._id && !isNavigating && (
+                        <IconButton
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setDeleteTarget(board);
+                          }}
+                          sx={{
+                            ml: 1,
+                            color: textColor,
+                            opacity: 0.8,
+                            transition: "all 0.2s ease",
+                            "&:hover": {
+                              bgcolor: "rgba(255,255,255,0.2)",
+                              opacity: 1,
+                              transform: "scale(1.1)",
+                            },
+                          }}
+                        >
+                          <CloseRounded fontSize="small" />
+                        </IconButton>
+                      )}
                     </Card>
                   </Box>
                 </Box>

@@ -25,21 +25,21 @@ import axiosClient from "../../apis/axiosClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 
-// Danh sách màu nền với tên gợi ý
+// Danh sách màu 
 const BACKGROUND_COLORS = [
-  { color: "#4BADE8", name: "Sky Blue" },
-  { color: "#D29034", name: "Sunset Orange" },
-  { color: "#519839", name: "Forest Green" },
-  { color: "#B04632", name: "Crimson Red" },
-  { color: "#89609E", name: "Royal Purple" },
-  { color: "#CD5A91", name: "Pink Rose" },
-  { color: "#FFFFFF", name: "Clean White" },
+  { color: "#00C2E0", name: "Sky Cyan" },
+  { color: "#0079BF", name: "Ocean Blue" },
 
-  { color: "#61BD4F", name: "Fresh Green" },
-  { color: "#F2D600", name: "Golden Yellow" },
-  { color: "#FF9F1A", name: "Vibrant Orange" },
-  { color: "#EB5A46", name: "Coral Red" },
+  { color: "#51E898", name: "Mint Green" },
+  { color: "#FFAB4A", name: "Amber Orange" },
+  { color: "#FF6F61", name: "Coral Red" },
   { color: "#C377E0", name: "Lavender Purple" },
+  { color: "#B3BAC5", name: "Cloud Gray" },
+  { color: "#344563", name: "Midnight Navy" },
+  { color: "#F4F5F7", name: "Paper White" },
+  { color: "#6B778C", name: "Slate" },
+  { color: "#E4F0F6", name: "Ice Blue" },
+  { color: "#F9D6C1", name: "Peach" },
 ];
 
 // Hàm để kiểm tra độ sáng của màu và trả về màu text phù hợp
@@ -167,7 +167,15 @@ const BoardCreateModal = ({
         >
           <DashboardIcon sx={{ color: "#fff", fontSize: 28 }} />
           <DialogTitle
-            sx={{ color: "#fff", p: 0, fontSize: "1.5rem", fontWeight: 600 }}
+            sx={{
+              color: "#172b4d",
+              p: 0,
+              fontSize: "1.7rem",
+              fontWeight: 700,
+              letterSpacing: 0.2,
+              mb: 0.5,
+              lineHeight: 1.2,
+            }}
           >
             Tạo bảng mới
           </DialogTitle>
@@ -197,7 +205,8 @@ const BoardCreateModal = ({
             variant="subtitle1"
             fontWeight={600}
             mb={1.5}
-            color="text.primary"
+            color="#344563"
+            sx={{ letterSpacing: 0.1 }}
           >
             Tiêu đề bảng *
           </Typography>
@@ -283,8 +292,11 @@ const BoardCreateModal = ({
             </Typography>
           </Box>
 
-          <Typography variant="body2" color="text.secondary" mb={2}>
-            Màu hiện tại: <strong>{selectedColor?.name}</strong>
+          <Typography variant="body2" color="#6b778c" mb={2}>
+            Màu hiện tại:{" "}
+            <strong style={{ color: backgroundColor }}>
+              {selectedColor?.name}
+            </strong>
           </Typography>
 
           <Grid container spacing={1.5}>
@@ -370,7 +382,12 @@ const BoardCreateModal = ({
             py: 1,
             borderRadius: 2,
             backgroundColor: backgroundColor,
-            // color: buttonTextColor,
+            color: ["#F4F5F7", "#E4F0F6", "#B3BAC5", "#FFFFFF"].includes(
+              backgroundColor
+            )
+              ? "#172b4d"
+              : "#fff",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             "&:hover": {
               backgroundColor:
                 backgroundColor === "#FFFFFF"

@@ -1065,6 +1065,7 @@ fastq@^1.6.0:
     axios "^1.10.0"
     fe-trello-web "file:"
     lodash "^4.17.21"
+    notistack "^3.0.2"
     react "^18.3.1"
     react-dom "^18.3.1"
     react-router-dom "^7.6.2"
@@ -1124,6 +1125,11 @@ form-data@^4.0.0:
     es-set-tostringtag "^2.1.0"
     hasown "^2.0.2"
     mime-types "^2.1.12"
+
+fsevents@~2.3.2, fsevents@~2.3.3:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
   version "1.1.2"

@@ -27,6 +27,7 @@ import { cloneDeep } from "lodash";
 import AllBoards from "./AllBoards";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import EventNoteIcon from "@mui/icons-material/EventNote";
+import { boardAPI } from "../../../apis/board.api";
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
@@ -34,8 +35,6 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 };
 
 const BoardContent: React.FC<BoardProps> = ({ board }) => {
-  // console.log("📋 Board", board);
-
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 10 },
   });
@@ -44,16 +43,13 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
   const [orderedColumnsState, setOrderedColumnsState] = useState<
     ColumnsProps["columns"]
   >([]);
-  const [activeDragItemId, setActiveDragItemId] = useState<string | null>(null);
-  console.log(activeDragItemId);
+  const [, setActiveDragItemId] = useState<string | null>(null);
   const [activeDragItemType, setActiveDragItemType] = useState<string | null>(
     null
   );
   const [activeDragItemData, setActiveDragItemData] = useState<
     IColumn | ICard | null
-    >(null);
-  
-  
+  >(null);
 
   const findColumnByCardId = (cardId: string) => {
     return orderedColumnsState.find((column) =>
@@ -154,8 +150,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
   // Kết thúc kéo - drag 1 phần tử
   const handleDragEnd = (event: DragEndEvent) => {
-    // console.log("handleDragEnd: ", event);
-
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
       const { active, over } = event;
       if (!active || !over) return;
@@ -210,6 +204,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           newIndex
         );
         setOrderedColumnsState(dndOrderedColumns);
+
+        // Gửi thứ tự mới của columns lên server để lưu lại
+        const newColumnOrderIds = dndOrderedColumns.map((c) => c._id);
+        boardAPI.updateColumnOrder(board._id, newColumnOrderIds);
       }
     }
 
@@ -218,45 +216,20 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     setActiveDragItemData(null);
   };
 
-  // useEffect(() => {
-  //   if (!board?.columns || !board?.columnOrderIds) return;
-  //   const fixedColumns = board.columns.map((column) => ({
-  //     ...column,
-  //     cards: column.cards as ICard[],
-  //   }));
-  //   setOrderedColumnsState(mapOrder(fixedColumns, board.columnOrderIds, "_id"));
-    
-  // }, [board]);
   useEffect(() => {
-    
-
     const columnOrderIds = board.columnOrderIds?.length
       ? board.columnOrderIds
       : board.columns.map((col) => col._id);
-
-    // console.log("📥 columnOrderIds", columnOrderIds);
-    // console.log("📥 board.columns", board.columns);
 
     const fixedColumns = board.columns.map((column) => ({
       ...column,
       _id: column._id.toString(),
       cards: (column.cards || []) as ICard[],
     }));
-    
-    // console.log(
-    //   "column._id (after toString)",
-    //   board.columns.map((col) => col._id.toString())
-    // );
-
 
     const ordered = mapOrder(fixedColumns, columnOrderIds, "_id");
-    
     setOrderedColumnsState(ordered);
   }, [board]);
-  
-  
-  
-  
 
   const customDropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -267,12 +240,27 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       },
     }),
   };
+
   const [showSidebar, setShowSidebar] = useState(true);
+
+  const handleColumnTitleUpdated = (columnId: string, newTitle: string) => {
+    setOrderedColumnsState((prev) =>
+      prev.map((col) =>
+        col._id === columnId ? { ...col, title: newTitle } : col
+      )
+    );
+  };
+
+  // Handler mới cho việc xóa column
+  const handleColumnDeleted = (deletedColumnId: string) => {
+    setOrderedColumnsState((prev) =>
+      prev.filter((col) => col._id !== deletedColumnId)
+    );
+  };
 
   return (
     <>
       <Button
-        // variant="contained"
         startIcon={
           showSidebar ? <KeyboardDoubleArrowLeftIcon /> : <EventNoteIcon />
         }
@@ -298,7 +286,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
             top: 0,
             left: showSidebar ? 0 : -400,
             height: "100%",
-            // borderRight: "1px solid #ccc",
             p: 2,
             overflowY: "auto",
             bgcolor: "primary.50",
@@ -332,7 +319,23 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
                 p: "10px 0",
               }}
             >
-              <ListColumns columns={orderedColumnsState} />
+              <ListColumns
+                columns={orderedColumnsState}
+                boardId={board._id}
+                onColumnAdded={(newColumn) => {
+                  setOrderedColumnsState((prev) => {
+                    const newColumns = [...prev, newColumn];
+                    return mapOrder(
+                      newColumns,
+                      [...board.columnOrderIds, newColumn._id],
+                      "_id"
+                    );
+                  });
+                }}
+                onColumnTitleUpdated={handleColumnTitleUpdated}
+                onColumnDeleted={handleColumnDeleted} 
+              />
+
               <DragOverlay dropAnimation={customDropAnimation}>
                 {!activeDragItemType && null}
 
