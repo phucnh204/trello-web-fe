@@ -8,7 +8,7 @@ import {
 import { ColumnsProps } from "./type";
 
 const ListColumns: React.FC<ColumnsProps> = ({ columns }) => {
-  console.log("📦 columns propsvvvvvvvvvvvvvvvvvvvvvvvvvvv:", columns); // ✅ Phải ra mảng có 1 column
+  
 
   return (
     <SortableContext

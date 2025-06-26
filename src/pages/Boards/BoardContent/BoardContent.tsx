@@ -34,7 +34,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 };
 
 const BoardContent: React.FC<BoardProps> = ({ board }) => {
-  console.log("📋 Board", board);
+  // console.log("📋 Board", board);
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 10 },
@@ -51,7 +51,9 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
   );
   const [activeDragItemData, setActiveDragItemData] = useState<
     IColumn | ICard | null
-  >(null);
+    >(null);
+  
+  
 
   const findColumnByCardId = (cardId: string) => {
     return orderedColumnsState.find((column) =>
@@ -226,34 +228,29 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     
   // }, [board]);
   useEffect(() => {
-    if (!board?.columns || board.columns.length === 0) {
-      console.log("⛔ Board columns rỗng");
-      return;
-    }
+    
 
     const columnOrderIds = board.columnOrderIds?.length
       ? board.columnOrderIds
       : board.columns.map((col) => col._id);
 
-    console.log("📥 columnOrderIds", columnOrderIds);
-    console.log("📥 board.columns", board.columns);
+    // console.log("📥 columnOrderIds", columnOrderIds);
+    // console.log("📥 board.columns", board.columns);
 
     const fixedColumns = board.columns.map((column) => ({
       ...column,
       _id: column._id.toString(),
       cards: (column.cards || []) as ICard[],
     }));
-    console.log("columnOrderIds", columnOrderIds); // ['123', '456']
-    console.log(
-      "column._id (after toString)",
-      board.columns.map((col) => col._id.toString())
-    );
+    
+    // console.log(
+    //   "column._id (after toString)",
+    //   board.columns.map((col) => col._id.toString())
+    // );
 
 
     const ordered = mapOrder(fixedColumns, columnOrderIds, "_id");
-    console.log("📤 fixedColumns", fixedColumns);
-    console.log("📤 orderedColumnsState", ordered);
-
+    
     setOrderedColumnsState(ordered);
   }, [board]);
   

@@ -11,9 +11,11 @@ import { useLatestBoardId } from "../../hooks/useLatestBoardId";
 
 const Board = () => {
   const { id } = useParams();
-  const { data: latestBoardId, isLoading: loadingLatest } = useLatestBoardId();
+  const { data: board, isLoading: loadingLatest } = useLatestBoardId();
 
-  const selectedId = id || latestBoardId;
+  
+  const selectedId = id || board;
+  
 
   const { data, isLoading, error } = useBoard(selectedId ?? "");
 
@@ -25,6 +27,7 @@ const Board = () => {
   return (
     <Container sx={{ height: "100vh" }} disableGutters maxWidth={false}>
       <AppBar />
+      
       <BoardBar board={data.board} />
 
       <BoardContent board={data.board} />

@@ -6,7 +6,7 @@ export const useBoard = (boardId: string) => {
     queryKey: ["board", boardId],
     queryFn: async () => {
       const data = await boardAPI.getFullBoard(boardId);
-      console.log("📦 Dữ liệu API trả về:", data); // 👈 kiểm tra kỹ ở đây
+      console.log("🔍 useBoard data:", data);
       return data;
     },
     enabled: !!boardId,
