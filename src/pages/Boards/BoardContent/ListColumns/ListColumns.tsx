@@ -77,6 +77,7 @@ const ListColumns: React.FC<ColumnsProps> = ({
           display: "flex",
           overflowX: "auto",
           overflowY: "hidden",
+          gap: { xs: 1, md: 2 },
         }}
       >
         {columns?.map((column) => {

@@ -12,18 +12,16 @@ const BoardBar: React.FC<BoardProps> = () => {
       <Box
         sx={{
           width: "100%",
-          height: "65px",
+          height: { xs: 48, md: 65 },
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 2,
-          paddingX: 2,
+          paddingX: { xs: 1, md: 2 },
           overflowX: "auto",
-          // borderTop: "1px solid #2196F3",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          
           {/*  */}
           {/* <Chip
             sx={MENU_STYLE}

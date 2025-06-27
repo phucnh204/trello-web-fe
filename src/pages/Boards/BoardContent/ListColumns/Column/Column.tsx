@@ -158,11 +158,11 @@ const Column: React.FC<ColumnProps> = ({
       <Box
         {...listeners}
         sx={{
-          minWidth: "300px",
-          maxWidth: "300px",
+          minWidth: { xs: "85vw", sm: 260, md: 300 },
+          maxWidth: { xs: "85vw", sm: 260, md: 300 },
           bgcolor: (theme) =>
             theme.palette.mode === "dark" ? "#333643" : "#ebecf0",
-          ml: 2,
+          ml: { xs: 0, md: 2 },
           mt: 1,
           borderRadius: "6px",
           height: "fit-content",

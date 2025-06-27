@@ -312,21 +312,28 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         {showSidebar ? "Ẩn bớt" : "Kế hoạch của bạn"}
       </Button>
 
-      <Box sx={{ display: "flex", height: "calc(100vh - 55px - 65px)" }}>
-        {/* LEFT SIDEBAR - ASIDE */}
+      <Box
+        sx={{
+          display: "flex",
+          height: { xs: "auto", md: "calc(100vh - 55px - 65px)" },
+          flexDirection: { xs: "column", md: "row" },
+        }}
+      >
+        {/* LEFT SIDEBAR */}
         <Box
           component="aside"
           sx={{
-            width: 400,
-            position: "absolute",
+            width: { xs: "100vw", md: 400 },
+            position: { xs: "relative", md: "absolute" },
+            left: { xs: 0, md: showSidebar ? 0 : -400 },
             top: 0,
-            left: showSidebar ? 0 : -400,
-            height: "100%",
-            p: 2,
+            height: { xs: "auto", md: "100%" },
+            p: { xs: 1, md: 2 },
             overflowY: "auto",
             bgcolor: "primary.50",
             transition: "left 0.3s ease",
             zIndex: 9,
+            display: { xs: showSidebar ? "block" : "none", md: "block" },
           }}
         >
           <AllBoards />
@@ -336,8 +343,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         <Box
           sx={{
             flex: 1,
-            marginLeft: showSidebar ? "400px" : 0,
+            marginLeft: { xs: 0, md: showSidebar ? "400px" : 0 },
             transition: "margin-left 0.3s ease",
+            minWidth: 0,
+            p: { xs: 0.5, md: 0 },
           }}
         >
           <DndContext

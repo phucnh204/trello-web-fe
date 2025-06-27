@@ -99,6 +99,10 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
         boxShadow: "0 1px 1px rgba(0, 0, 0, 0.2)",
         overflow: "unset",
         display: card?.FE_PlacehoderCard ? "none" : " block",
+        borderRadius: { xs: 2, md: 4 },
+        px: { xs: 0.5, md: 1 },
+        py: { xs: 0.5, md: 1 },
+        fontSize: { xs: 14, md: 16 },
       }}
     >
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
