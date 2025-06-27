@@ -28,4 +28,5 @@ export interface ColumnsProps {
   onColumnAdded?: (newColumn: Column) => void;
   onColumnTitleUpdated?: (columnId: string, newTitle: string) => void;
   onColumnDeleted: (deletedColumnId: string) => void;
+  onCardAdded: (columnId: string, newCard: Card) => void;
 }

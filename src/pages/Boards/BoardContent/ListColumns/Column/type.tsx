@@ -19,6 +19,7 @@ export interface ColumnProps {
   };
   onColumnTitleUpdated?: (columnId: string, newTitle: string) => void;
   onColumnDeleted?: (columnId: string) => void;
+  onCardAdded?: (columnId: string, newCard: Card) => void;
 }
 
 

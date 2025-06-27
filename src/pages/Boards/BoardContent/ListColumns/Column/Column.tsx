@@ -32,6 +32,7 @@ const Column: React.FC<ColumnProps> = ({
   column,
   onColumnTitleUpdated,
   onColumnDeleted,
+  onCardAdded,
 }) => {
   const {
     setNodeRef,
@@ -67,8 +68,7 @@ const Column: React.FC<ColumnProps> = ({
 
   const createCardMutation = useMutation({
     mutationFn: cardAPI.createCard,
-    onSuccess: () => {
-
+    onSuccess: (newCard) => {
       queryClient.invalidateQueries({
         queryKey: ["columns", column.boardId],
       });
@@ -76,6 +76,7 @@ const Column: React.FC<ColumnProps> = ({
       enqueueSnackbar("Đã thêm card", { variant: "success" });
       setCardTitle("");
       setOpenAddCard(false);
+      onCardAdded?.(column._id, newCard);
     },
     onError: (error) => {
       console.error("❌ Lỗi thêm card:", error);

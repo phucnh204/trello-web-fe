@@ -28,6 +28,7 @@ import AllBoards from "./AllBoards";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import { boardAPI } from "../../../apis/board.api";
+import { cardAPI } from "../../../apis/card.api";
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
@@ -52,6 +53,10 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
   >(null);
 
   const findColumnByCardId = (cardId: string) => {
+    if (cardId === "__empty__") {
+      // Trả về column chưa có card nào
+      return orderedColumnsState.find((col) => col.cards.length === 0);
+    }
     return orderedColumnsState.find((column) =>
       column?.cards?.map((card) => card._id)?.includes(cardId)
     );
@@ -146,6 +151,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         return nextColumns;
       });
     }
+    
   };
 
   // Kết thúc kéo - drag 1 phần tử
@@ -156,36 +162,52 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
       const activeColumn = findColumnByCardId(active.id.toString());
       const overColumn = findColumnByCardId(over.id.toString());
+      if (!activeColumn || !overColumn) return;
 
-      if (!activeColumn || !overColumn || activeColumn._id !== overColumn._id)
-        return;
+      // const oldIndex = activeColumn.cards.findIndex(
+      //   (card) => card._id === active.id
+      // );
+      const newIndex =
+        over.id === "__empty__"
+          ? 0
+          : overColumn.cards.findIndex((card) => card._id === over.id);
 
-      const oldIndex = activeColumn.cards.findIndex(
-        (card) => card._id === active.id
-      );
-      const newIndex = activeColumn.cards.findIndex(
-        (card) => card._id === over.id
-      );
+      // Cập nhật UI
+      setOrderedColumnsState((prevColumns) => {
+        const newColumns = cloneDeep(prevColumns);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        setOrderedColumnsState((prevColumns) => {
-          const newColumns = cloneDeep(prevColumns);
-          const targetColumn = newColumns.find(
-            (col: IColumn) => col._id === activeColumn._id
+        // Xóa card khỏi column cũ
+        const fromCol = newColumns.find((col) => col._id === activeColumn._id);
+        if (fromCol) {
+          fromCol.cards = fromCol.cards.filter(
+            (card) => card._id !== active.id
           );
-          if (targetColumn) {
-            targetColumn.cards = arrayMove(
-              targetColumn.cards,
-              oldIndex,
-              newIndex
-            );
-            targetColumn.cardOrderIds = targetColumn.cards.map(
-              (card: ICard) => card._id
-            );
+          fromCol.cardOrderIds = fromCol.cards.map((card) => card._id);
+        }
+
+        // Thêm card vào column mới đúng vị trí
+        const toCol = newColumns.find((col) => col._id === overColumn._id);
+        if (toCol) {
+          const cardData = activeColumn.cards.find(
+            (card) => card._id === active.id
+          );
+          if (cardData) {
+            toCol.cards.splice(newIndex, 0, cardData);
+            toCol.cardOrderIds = toCol.cards.map((card) => card._id);
           }
-          return newColumns;
-        });
-      }
+        }
+        return newColumns;
+      });
+
+      // GỌI API LƯU VỊ TRÍ MỚI (dù cùng hay khác column)
+      cardAPI.moveCard(active.id.toString(), {
+        newColumnId: overColumn._id,
+        newPosition: newIndex,
+      });
+
+      setActiveDragItemId(null);
+      setActiveDragItemType(null);
+      setActiveDragItemData(null);
       return;
     }
 
@@ -255,6 +277,20 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
   const handleColumnDeleted = (deletedColumnId: string) => {
     setOrderedColumnsState((prev) =>
       prev.filter((col) => col._id !== deletedColumnId)
+    );
+  };
+
+  const handleCardAdded = (columnId: string, newCard: ICard) => {
+    setOrderedColumnsState((prev) =>
+      prev.map((col) =>
+        col._id === columnId
+          ? {
+              ...col,
+              cards: [...col.cards, newCard],
+              cardOrderIds: [...col.cardOrderIds, newCard._id],
+            }
+          : col
+      )
     );
   };
 
@@ -333,7 +369,8 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
                   });
                 }}
                 onColumnTitleUpdated={handleColumnTitleUpdated}
-                onColumnDeleted={handleColumnDeleted} 
+                onColumnDeleted={handleColumnDeleted}
+                onCardAdded={handleCardAdded}
               />
 
               <DragOverlay dropAnimation={customDropAnimation}>

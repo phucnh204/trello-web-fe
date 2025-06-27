@@ -26,6 +26,7 @@ const ListColumns: React.FC<ColumnsProps> = ({
   onColumnAdded,
   onColumnTitleUpdated,
   onColumnDeleted,
+  onCardAdded,
 }) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -84,8 +85,9 @@ const ListColumns: React.FC<ColumnsProps> = ({
               key={column._id}
               column={column}
               onColumnTitleUpdated={onColumnTitleUpdated}
-             // onColumnDeleted={handleColumnDeleted}
+              // onColumnDeleted={handleColumnDeleted}
               onColumnDeleted={onColumnDeleted}
+              onCardAdded={onCardAdded}
             />
           );
         })}
