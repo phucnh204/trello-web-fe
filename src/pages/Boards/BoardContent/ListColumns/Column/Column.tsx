@@ -17,7 +17,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddCardIcon from "@mui/icons-material/AddCard";
-import DragHandleIcon from "@mui/icons-material/DragHandle";
+// import DragHandleIcon from "@mui/icons-material/DragHandle";
 import ListCards from "./ListCards/ListCards";
 import { mapOrder } from "../../../../../utils/sort";
 import { ColumnProps, IColumn } from "./type";
@@ -26,6 +26,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { columnAPI } from "../../../../../apis/column.api";
 import { enqueueSnackbar } from "notistack";
+import { cardAPI } from "../../../../../apis/card.api";
 
 const Column: React.FC<ColumnProps> = ({
   column,
@@ -58,11 +59,29 @@ const Column: React.FC<ColumnProps> = ({
   const open = Boolean(anchorEl);
   const queryClient = useQueryClient();
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, "_id");
-
+  const [openAddCard, setOpenAddCard] = useState(false);
+  const [cardTitle, setCardTitle] = useState("");
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
+  const createCardMutation = useMutation({
+    mutationFn: cardAPI.createCard,
+    onSuccess: () => {
+
+      queryClient.invalidateQueries({
+        queryKey: ["columns", column.boardId],
+      });
+
+      enqueueSnackbar("Đã thêm card", { variant: "success" });
+      setCardTitle("");
+      setOpenAddCard(false);
+    },
+    onError: (error) => {
+      console.error("❌ Lỗi thêm card:", error);
+      enqueueSnackbar("Thêm card thất bại", { variant: "error" });
+    },
+  });
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -252,19 +271,44 @@ const Column: React.FC<ColumnProps> = ({
         <ListCards cards={orderedCards} />
 
         {/* Card footer */}
-        <Box
-          sx={{
-            height: "65px",
-            p: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Button startIcon={<AddCardIcon />}>Thêm nội dung mới</Button>
-          <Tooltip title="Drag to move">
-            <DragHandleIcon sx={{ cursor: "pointer" }} />
-          </Tooltip>
+        <Box sx={{ px: 2, width: "100%" }}>
+          {openAddCard ? (
+            <>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Nhập tiêu đề..."
+                value={cardTitle}
+                onChange={(e) => setCardTitle(e.target.value)}
+              />
+              <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() =>
+                    createCardMutation.mutate({
+                      boardId: column.boardId,
+                      columnId: column._id,
+                      title: cardTitle,
+                    })
+                  }
+                >
+                  Thêm thẻ
+                </Button>
+                <Button size="small" onClick={() => setOpenAddCard(false)}>
+                  Hủy
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Button
+              startIcon={<AddCardIcon />}
+              onClick={() => setOpenAddCard(true)}
+              size="small"
+            >
+              Thêm nội dung mới
+            </Button>
+          )}
         </Box>
       </Box>
     </div>
