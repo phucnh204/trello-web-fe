@@ -1,20 +1,27 @@
-// import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import Login from "../pages/Auth/Login";
 import Board from "../pages/Boards/_id";
-import AllBoards from "../pages/Boards/BoardContent/AllBoards";
+// import AllBoards from "../pages/Boards/BoardContent/AllBoards";
+import { getToken } from "../utils/auth";
 
+const isAuthenticated = !!getToken();
 
 const routes = [
   {
     path: "/",
-    element: <Board />,
+    element: isAuthenticated ? <Board /> : <Navigate to="/login" replace />,
   },
   {
     path: "/boards",
-    element: <AllBoards />,
+    element: <Board />,
   },
   {
     path: "/boards/:id",
     element: <Board />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
 ];
 

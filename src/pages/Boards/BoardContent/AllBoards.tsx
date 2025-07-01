@@ -22,6 +22,7 @@ import BoardCreateModal from "../../../components/BoardCreateModal/BoardCreateMo
 import { enqueueSnackbar } from "notistack";
 import { CloseRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { getUserId } from "../../../utils/auth";
 
 interface Board {
   _id: string;
@@ -55,11 +56,15 @@ const AllBoards = () => {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user._id;
   // Lấy danh sách boards từ API
   const { data = [], isLoading } = useQuery<Board[]>({
-    queryKey: ["boards"],
+    queryKey: ["boards", userId],
     queryFn: async (): Promise<Board[]> => {
-      const res = await axiosClient.get<Board[]>("/boards?userId=user-dev-01");
+      const userId = getUserId();
+
+      const res = await axiosClient.get<Board[]>(`/boards?userId=${userId}`);
       return res.data
         .filter((board) => board.createdAt)
         .sort(

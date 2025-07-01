@@ -24,8 +24,9 @@ import {
 import axiosClient from "../../apis/axiosClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
+import { getUserId } from "../../utils/auth";
 
-// Danh sách màu 
+// Danh sách màu
 const BACKGROUND_COLORS = [
   { color: "#00C2E0", name: "Sky Cyan" },
   { color: "#0079BF", name: "Ocean Blue" },
@@ -94,6 +95,7 @@ const BoardCreateModal = ({
       const res = await axiosClient.post("/boards", {
         title,
         backgroundColor,
+        ownerIds: [getUserId()],
       });
 
       console.log("✅ Board created:", res.data);

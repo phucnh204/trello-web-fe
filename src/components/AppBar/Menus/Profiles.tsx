@@ -7,8 +7,10 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
+  Typography,
 } from "@mui/material";
-import { Logout, PersonAdd, Settings } from "@mui/icons-material";
+import { Logout, Settings } from "@mui/icons-material";
+import { getUserInfo } from "../../../utils/auth";
 
 function Profiles() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -19,20 +21,35 @@ function Profiles() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const user = getUserInfo();
+
   return (
-    <Box>
+    <Box display="flex" alignItems="center" gap={1}>
+      {/* Hiển thị avatar, tên, email luôn ở AppBar */}
+      <Avatar
+        sx={{ width: 32, height: 32 }}
+        src={user?.avatar || user?.picture || ""}
+        alt={user?.name || "User"}
+      />
+      <Box display={{ xs: "none", sm: "block" }}>
+        <Typography fontWeight="bold" fontSize={14}>
+          {user?.name}
+        </Typography>
+        <Typography variant="body2" fontSize={12} color="text.secondary">
+          {user?.email}
+        </Typography>
+      </Box>
+      {/* Nút mở menu */}
       <Button
         id="basic-button-profiles"
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        // endIcon={<ExpandMoreIcon />}
+        sx={{ minWidth: 0, p: 0, ml: 1 }}
       >
-        <Avatar
-          sx={{ width: 32, height: 32 }}
-          src="https://scontent.fsgn5-6.fna.fbcdn.net/v/t39.30808-1/465562307_587170200640794_5021424605932194248_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=108&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeHjpS5nSmFqMdXZq_r4FkolUX7icwE9m8VRfuJzAT2bxQuzzVIHoIalhoGKjmQx_ag-I5qPLKdSN_L2mXtlgqTg&_nc_ohc=l7BnV9zko9UQ7kNvgGZoZbV&_nc_zt=24&_nc_ht=scontent.fsgn5-6.fna&_nc_gid=AgDg_TKIuf5ib_1sjMFeK-X&oh=00_AYB5BEBZ0nqsv9cbNlIRNrhXGmCq-TOVb354R25ZS6CEqg&oe=67A2296B"
-        />
+        <Settings />
       </Button>
       <Menu
         id="basic-menu"
@@ -43,35 +60,23 @@ function Profiles() {
           "aria-labelledby": "basic-button-profiles",
         }}
       >
-        <MenuItem
-        // onClick={handleClose}
-        >
-          <Avatar sx={{ width: 28, height: 28, mr: 2 }} /> Profile
-        </MenuItem>
-        <MenuItem
-        //onClick={handleClose}
-        >
-          <Avatar sx={{ width: 28, height: 28, mr: 2 }} /> My account
+        <MenuItem disabled>
+          <Avatar
+            sx={{ width: 28, height: 28, mr: 2 }}
+            src={user?.avatar || user?.picture}
+          />
+          <Box>
+            <Typography fontWeight="bold">{user?.name}</Typography>
+            <Typography variant="body2">{user?.email}</Typography>
+          </Box>
         </MenuItem>
         <Divider />
         <MenuItem
-        //onClick={handleClose}
-        >
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Add another account
-        </MenuItem>
-        <MenuItem
-        //onClick={handleClose}
-        >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
-        <MenuItem
-        //onClick={handleClose}
+          onClick={() => {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_info");
+            window.location.href = "/login";
+          }}
         >
           <ListItemIcon>
             <Logout fontSize="small" />

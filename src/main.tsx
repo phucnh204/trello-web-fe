@@ -9,8 +9,10 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { Slide } from "@mui/material";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const queryClient = new QueryClient();
+console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 createRoot(document.getElementById("root")!).render(
   <>
@@ -25,7 +27,12 @@ createRoot(document.getElementById("root")!).render(
               autoHideDuration={3000}
               TransitionComponent={Slide} // Slide | Grow | Fade | Zoom
             >
-              <App />
+              <GoogleOAuthProvider
+                clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+              >
+                <App />
+               
+              </GoogleOAuthProvider>
             </SnackbarProvider>
           </BrowserRouter>
         </React.StrictMode>

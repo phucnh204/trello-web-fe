@@ -18,6 +18,7 @@ import { blue } from "@mui/material/colors";
 function AppBar() {
   const theme = useTheme();
   const textColor = theme.palette.mode === "dark" ? "white" : "black";
+  const logo = "./../src/assets/logo.png";
   // const MENU_STYLE = {
   //   color: "primary.main",
   //   bgcolor: "white",
@@ -52,7 +53,7 @@ function AppBar() {
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <img
           className="trello-logo"
-          src="https://www.prudential.com.vn/export/sites/prudential-vn/vi/.thu-vien/hinh-anh/pulse-nhip-song-khoe/song-khoe/2022/cach-xac-dinh-va-lap-ke-hoach-hoan-thanh-muc-tieu-ca-nhan-1200x800-3.jpg"
+          src={logo}
           alt="Trello"
           style={{
             width: "90px",
