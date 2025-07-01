@@ -96,22 +96,44 @@ const ListColumns: React.FC<ColumnsProps> = ({
         {/* Box add new column */}
         <Box
           sx={{
-            minWidth: "200px",
-            maxWidth: "200px",
-            mx: 2,
-            borderRadius: "6px",
+            minWidth: { xs: "160px", sm: "180px", md: "200px" },
+            maxWidth: { xs: "180px", sm: "200px" },
+            mx: { xs: 1, sm: 2 },
+            borderRadius: "10px",
             height: "fit-content",
-            bgcolor: "#ffffff3d",
+            bgcolor: "rgba(0,194,224,0.07)",
             mt: 1.5,
+            boxShadow: "0 2px 8px 0 #00C2E022",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "box-shadow 0.2s, background 0.2s",
+            "&:hover": {
+              bgcolor: "rgba(0,194,224,0.13)",
+              boxShadow: "0 4px 16px 0 #00C2E044",
+            },
           }}
         >
           <Button
             sx={{
-              color: "white",
+              color: "#00C2E0",
               width: "100%",
-              py: 1,
+              py: 1.2,
+              fontWeight: 700,
+              fontSize: 15,
+              borderRadius: 2,
+              background: "rgba(255,255,255,0.85)",
+              boxShadow: "0 2px 8px 0 #00C2E022",
+              textTransform: "none",
+              transition: "all 0.2s",
+              "&:hover": {
+                background: "#e0f7fa",
+                color: "#0099b7",
+                boxShadow: "0 4px 16px 0 #00C2E044",
+                transform: "translateY(-2px) scale(1.04)",
+              },
             }}
-            startIcon={<AddToDriveIcon />}
+            startIcon={<AddToDriveIcon sx={{ color: "#00C2E0" }} />}
             onClick={() => setOpen(true)}
           >
             Thêm nội dung
@@ -123,23 +145,34 @@ const ListColumns: React.FC<ColumnsProps> = ({
           onClose={() => setOpen(false)}
           PaperProps={{
             sx: {
-              borderRadius: 2.5,
-              boxShadow: "0 8px 28px rgba(0,0,0,0.28)",
-              minWidth: 380,
+              borderRadius: 3,
+              boxShadow: "0 8px 28px rgba(0,194,224,0.18)",
+              minWidth: { xs: 260, sm: 320, md: 380 },
               bgcolor: "#f4f5f7",
               p: 2,
+              transition: "box-shadow 0.2s",
+              border: "2px solid #00C2E0",
+              background: "linear-gradient(135deg, #e0f7fa 0%, #f4f6fa 100%)",
             },
           }}
         >
           <DialogTitle
             sx={{
-              fontWeight: 700,
-              fontSize: 18,
-              color: "#172b4d",
+              fontWeight: 900,
+              fontSize: 21,
+              color: "#00C2E0",
               pb: 0,
               bgcolor: "transparent",
+              letterSpacing: 0.7,
+              textAlign: "center",
+              textShadow: "0 2px 8px #00C2E044",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1,
             }}
           >
+            <AddIcon sx={{ color: "#00C2E0", fontSize: 28, mb: "2px" }} />
             Thêm cột mới
           </DialogTitle>
 
@@ -152,21 +185,23 @@ const ListColumns: React.FC<ColumnsProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               variant="outlined"
               sx={{
-                bgcolor: "white",
-                borderRadius: 1,
+                bgcolor: "#fff",
+                borderRadius: 2,
                 mt: 2,
                 mb: 1,
+                boxShadow: "0 2px 8px #00C2E022",
                 "& .MuiOutlinedInput-root": {
-                  fontSize: 15,
+                  fontSize: 16,
                   padding: "10px 12px",
+                  fontWeight: 600,
                   "& fieldset": {
-                    borderColor: "#dfe1e6",
+                    borderColor: "#b2ebf2",
                   },
                   "&:hover fieldset": {
-                    borderColor: "#a5adba",
+                    borderColor: "#00C2E0",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#388bff",
+                    borderColor: "#00C2E0",
                     borderWidth: "2px",
                   },
                 },
@@ -175,16 +210,27 @@ const ListColumns: React.FC<ColumnsProps> = ({
             />
           </DialogContent>
 
-          <DialogActions sx={{ px: 2, pb: 1.5 }}>
+          <DialogActions
+            sx={{
+              px: 2,
+              pb: 1.5,
+              justifyContent: "space-between",
+              mt: 1,
+              borderTop: "1px solid #e0f7fa",
+            }}
+          >
             <Button
               onClick={() => setOpen(false)}
               sx={{
                 color: "#5e6c84",
-                fontWeight: 500,
+                fontWeight: 600,
                 textTransform: "none",
-                fontSize: 14,
+                fontSize: 15,
+                borderRadius: 2,
+                px: 2,
                 "&:hover": {
-                  bgcolor: "#091e420a",
+                  bgcolor: "#e0f7fa",
+                  color: "#00C2E0",
                 },
               }}
             >
@@ -196,17 +242,23 @@ const ListColumns: React.FC<ColumnsProps> = ({
               variant="contained"
               startIcon={<AddIcon />}
               sx={{
-                bgcolor: "#0c66e4",
+                bgcolor: "#00C2E0",
                 color: "#fff",
-                fontWeight: 600,
-                fontSize: 14,
+                fontWeight: 700,
+                fontSize: 15,
                 textTransform: "none",
-                boxShadow: "none",
-                borderRadius: 1.5,
-                px: 2.5,
+                boxShadow: "0 2px 8px #00C2E022",
+                borderRadius: 2,
+                px: 3,
                 py: 1,
+                transition: "background 0.2s, box-shadow 0.2s",
                 "&:hover": {
-                  bgcolor: "#0055cc",
+                  bgcolor: "#0099b7",
+                  boxShadow: "0 4px 16px #00C2E044",
+                },
+                "&:disabled": {
+                  bgcolor: "#b2ebf2",
+                  color: "#90a4ae",
                 },
               }}
             >

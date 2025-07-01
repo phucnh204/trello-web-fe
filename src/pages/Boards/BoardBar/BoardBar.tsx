@@ -5,8 +5,25 @@ import { Avatar, AvatarGroup, Box, Button, Tooltip } from "@mui/material";
 // import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import { BoardProps } from "../../../apis/type-mock-data";
+import { useState } from "react";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 const BoardBar: React.FC<BoardProps> = () => {
+  const [open, setOpen] = useState(false);
+
+  const handleInviteClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setOpen(false);
+  };
+
   return (
     <div>
       <Box
@@ -53,17 +70,45 @@ const BoardBar: React.FC<BoardProps> = () => {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button variant="outlined" endIcon={<PersonAddAlt1Icon />}>
+          <Button
+            variant="outlined"
+            endIcon={<PersonAddAlt1Icon />}
+            onClick={handleInviteClick}
+            sx={{
+              borderRadius: 3,
+              fontWeight: 600,
+              px: 3,
+              borderColor: "#00C2E0",
+              color: "#00C2E0",
+              background: "white",
+              boxShadow: "0 2px 8px 0 #00C2E022",
+              transition: "all 0.2s",
+              "&:hover": {
+                background: "#e0f7fa",
+                borderColor: "#0099b7",
+                color: "#0099b7",
+                boxShadow: "0 4px 16px 0 #00C2E044",
+                transform: "translateY(-2px) scale(1.04)",
+              },
+            }}
+          >
             Invite
           </Button>
-          {/*  */}
           <AvatarGroup
             max={7}
             sx={{
               "& .MuiAvatar-root": {
-                width: 34,
-                height: 34,
+                width: 36,
+                height: 36,
                 fontSize: 16,
+                border: "2px solid #fff",
+                boxShadow: "0 2px 8px 0 #00C2E022",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                "&:hover": {
+                  zIndex: 2,
+                  transform: "scale(1.08)",
+                  boxShadow: "0 4px 16px 0 #00C2E044",
+                },
               },
             }}
           >
@@ -76,6 +121,20 @@ const BoardBar: React.FC<BoardProps> = () => {
           </AvatarGroup>
         </Box>
       </Box>
+      <Snackbar
+        open={open}
+        autoHideDuration={2200}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <MuiAlert
+          onClose={handleClose}
+          severity="info"
+          sx={{ width: "100%", fontWeight: 600 }}
+        >
+          Tính năng đang phát triển!
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 };

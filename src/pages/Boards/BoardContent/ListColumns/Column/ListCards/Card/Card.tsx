@@ -96,18 +96,28 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
       sx={{
         position: "relative",
         cursor: "pointer",
-        boxShadow: "0 1px 1px rgba(0, 0, 0, 0.2)",
+        boxShadow: "0 2px 12px 0 #00C2E022",
         overflow: "unset",
         display: card?.FE_PlacehoderCard ? "none" : " block",
-        borderRadius: { xs: 2, md: 4 },
-        px: { xs: 0.5, md: 1 },
-        py: { xs: 0.5, md: 1 },
-        fontSize: { xs: 14, md: 16 },
+        borderRadius: 4,
+        px: 1.5,
+        py: 1,
+        fontSize: 15,
+        background: "linear-gradient(120deg, #f4f6fa 60%, #e0f7fa 100%)",
+        border: "1.5px solid #e0f7fa",
+        transition: "box-shadow 0.18s, border 0.18s, background 0.18s",
+        "&:hover": {
+          boxShadow: "0 6px 24px 0 #00C2E044",
+          border: "1.5px solid #00C2E0",
+          background: "linear-gradient(120deg, #e0f7fa 60%, #f4f6fa 100%)",
+        },
       }}
     >
-      {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
+      {card?.cover && (
+        <CardMedia sx={{ height: 120, borderRadius: 3 }} image={card?.cover} />
+      )}
 
-      <CardContent>
+      <CardContent sx={{ pb: 1, pt: 1 }}>
         {isEditing ? (
           <input
             value={title}
@@ -122,15 +132,19 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
               }
             }}
             style={{
-              fontWeight: "bold",
-              fontSize: 16,
+              fontWeight: 600,
+              fontSize: 15,
               width: "100%",
-              border: "1px solid #1976d2",
-              borderRadius: 4,
+              border: "1.5px solid #00C2E0",
+              borderRadius: 6,
               outline: "none",
-              padding: "6px 8px",
-              background: "#fff",
+              padding: "7px 10px",
+              background: "#f4f6fa",
               boxSizing: "border-box",
+              marginBottom: 2,
+              color: "#1565c0",
+              transition: "border 0.18s",
+              boxShadow: "0 1px 4px #00C2E022",
             }}
             maxLength={100}
           />
@@ -138,22 +152,22 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
           <Typography
             onClick={() => setIsEditing(true)}
             sx={{
-              // display: "flex",
-              // justifyContent: "start",
-              // alignItems: "center",
-              fontSize: 16,
-              fontWeight: "bold",
+              fontSize: 15,
+              fontWeight: 600,
               cursor: "pointer",
               px: 1,
-              pt: 1,
-              borderRadius: "4px",
-              transition: "background 0.2s",
+              pt: 0.5,
+              borderRadius: 2,
+              transition: "background 0.18s, color 0.18s",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               maxWidth: "100%",
+              color: "#1976d2",
+              background: "transparent",
               "&:hover": {
-                background: "#f4f5f7",
+                background: "#e0f7fa",
+                color: "#0099b7",
               },
             }}
             title={title}
@@ -167,6 +181,21 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
         <CardActions
           sx={{
             p: "0 4px 8px 4px",
+            gap: 1,
+            "& .MuiButton-root": {
+              minWidth: 32,
+              color: "#00C2E0",
+              fontWeight: 600,
+              fontSize: 13,
+              borderRadius: 2,
+              px: 1,
+              background: "rgba(0,194,224,0.06)",
+              transition: "background 0.18s, color 0.18s",
+              "&:hover": {
+                background: "#e0f7fa",
+                color: "#0099b7",
+              },
+            },
           }}
         >
           {!!card?.memberIds.length && (
@@ -191,7 +220,20 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
 
       <IconButton
         size="small"
-        sx={{ position: "absolute", top: 4, right: 4, zIndex: 2 }}
+        sx={{
+          position: "absolute",
+          top: 4,
+          right: 4,
+          zIndex: 2,
+          color: "#e53935",
+          background: "#fff",
+          borderRadius: 2,
+          transition: "background 0.18s, color 0.18s",
+          "&:hover": {
+            background: "#ffebee",
+            color: "#b71c1c",
+          },
+        }}
         onClick={handleDelete}
       >
         <DeleteOutlineIcon fontSize="small" />
@@ -199,13 +241,32 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
 
       {/* Dialog xác nhận xoá */}
       <Dialog open={openDeleteDialog} onClose={handleCancelDelete}>
-        <DialogTitle>Bạn có chắc muốn xoá thẻ này không?</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, color: "#e53935" }}>
+          Bạn có chắc muốn xoá thẻ này không?
+        </DialogTitle>
         <DialogActions>
-          <Button onClick={handleCancelDelete}>Huỷ</Button>
+          <Button
+            onClick={handleCancelDelete}
+            sx={{
+              color: "#5e6c84",
+              fontWeight: 600,
+              textTransform: "none",
+              "&:hover": { bgcolor: "#e0f7fa", color: "#00C2E0" },
+            }}
+          >
+            Huỷ
+          </Button>
           <Button
             onClick={handleConfirmDelete}
-            // color="warning"
-            // variant="contained"
+            sx={{
+              color: "#e53935",
+              fontWeight: 700,
+              textTransform: "none",
+              "&:hover": {
+                bgcolor: "#ffebee",
+                color: "#b71c1c",
+              },
+            }}
           >
             Xoá
           </Button>

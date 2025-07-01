@@ -17,13 +17,25 @@ function EmptyCardPlaceholder() {
       {...attributes}
       {...listeners}
       style={{
-        minHeight: 48,
-        borderRadius: 6,
-        background: "transparent",
+        minHeight: 56,
+        borderRadius: 8,
+        background: "linear-gradient(90deg, #e0f7fa 0%, #f4f6fa 100%)",
+        border: "2px dashed #00C2E0",
+        opacity: 0.5,
+        margin: "6px 0",
         pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontStyle: "italic",
+        color: "#00C2E0",
+        fontWeight: 500,
+        fontSize: 15,
       }}
       data-empty-drop
-    />
+    >
+      Thả thẻ vào đây
+    </div>
   );
 }
 function ListCards({ cards }: ListCardsProps) {
@@ -38,7 +50,14 @@ function ListCards({ cards }: ListCardsProps) {
           px: "10px",
           display: "flex",
           flexDirection: "column",
-          gap: 1,
+          gap: 1.2,
+          minHeight: 60,
+          transition: "background 0.2s",
+          background:
+            cards.length === 0
+              ? "linear-gradient(90deg, #e0f7fa 0%, #f4f6fa 100%)"
+              : "transparent",
+          borderRadius: 2,
         }}
       >
         {cards.length === 0 ? (

@@ -164,11 +164,18 @@ const Column: React.FC<ColumnProps> = ({
             theme.palette.mode === "dark" ? "#333643" : "#ebecf0",
           ml: { xs: 0, md: 2 },
           mt: 1,
-          borderRadius: "6px",
+          borderRadius: "12px",
           height: "fit-content",
           maxHeight: "80vh",
           overflowY: "auto",
           scrollBehavior: "smooth",
+          boxShadow: "0 4px 24px 0 #00C2E022",
+          border: "1.5px solid #e0f7fa",
+          transition: "box-shadow 0.2s, border 0.2s",
+          "&:hover": {
+            boxShadow: "0 8px 32px 0 #00C2E044",
+            border: "1.5px solid #00C2E0",
+          },
           "&::-webkit-scrollbar-track": {
             marginY: "55px",
             borderRadius: "10px",
@@ -187,13 +194,16 @@ const Column: React.FC<ColumnProps> = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            bgcolor: "white",
+            bgcolor: "#fff",
             color: (theme) =>
-              theme.palette.mode === "dark" ? "#333643" : "#000",
+              theme.palette.mode === "dark" ? "#333643" : "#00C2E0",
             position: "sticky",
             top: 0,
-            backgroundColor: "white",
+            backgroundColor: "#fff",
             zIndex: 1,
+            borderTopLeftRadius: "12px",
+            borderTopRightRadius: "12px",
+            boxShadow: "0 2px 8px 0 #00C2E022",
           }}
         >
           {isEditingTitle ? (
@@ -211,13 +221,37 @@ const Column: React.FC<ColumnProps> = ({
                 }
               }}
               inputProps={{
-                style: { fontWeight: "bold", fontSize: 16 },
+                style: { fontWeight: "bold", fontSize: 17, color: "#00C2E0" },
                 maxLength: 50,
+              }}
+              sx={{
+                width: "90%",
+                "& .MuiInputBase-root": {
+                  color: "#00C2E0",
+                  fontWeight: 700,
+                  fontSize: 17,
+                },
+                "& .MuiInput-underline:after": {
+                  borderBottomColor: "#00C2E0",
+                },
               }}
             />
           ) : (
             <Typography
-              sx={{ fontWeight: "bold", cursor: "pointer" }}
+              sx={{
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: 17,
+                color: "#00C2E0",
+                letterSpacing: 0.2,
+                px: 1,
+                borderRadius: 2,
+                transition: "background 0.2s, color 0.2s",
+                "&:hover": {
+                  background: "#e0f7fa",
+                  color: "#0099b7",
+                },
+              }}
               onClick={() => setIsEditingTitle(true)}
             >
               {newTitle}
@@ -225,7 +259,7 @@ const Column: React.FC<ColumnProps> = ({
           )}
 
           <Box>
-            <Tooltip title="More options">
+            <Tooltip title="Tùy chọn cột" arrow>
               <Button
                 id="basic-column-dropdown"
                 aria-controls={open ? "basic-menu" : undefined}
@@ -233,6 +267,14 @@ const Column: React.FC<ColumnProps> = ({
                 aria-expanded={open ? "true" : undefined}
                 onClick={handleClick}
                 endIcon={<ExpandMoreIcon />}
+                sx={{
+                  minWidth: 36,
+                  color: "#00C2E0",
+                  borderRadius: 2,
+                  "&:hover": {
+                    background: "#e0f7fa",
+                  },
+                }}
               />
             </Tooltip>
 
@@ -244,21 +286,52 @@ const Column: React.FC<ColumnProps> = ({
               MenuListProps={{
                 "aria-labelledby": "basic-column-dropdown",
               }}
+              sx={{
+                "& .MuiPaper-root": {
+                  borderRadius: 2,
+                  minWidth: 180,
+                  boxShadow: "0 4px 24px #00C2E044",
+                },
+              }}
             >
               <MenuItem onClick={handleDeleteColumn}>
                 <ListItemIcon>
-                  <DeleteOutlineIcon fontSize="small" />
+                  <DeleteOutlineIcon
+                    fontSize="small"
+                    sx={{ color: "#e53935" }}
+                  />
                 </ListItemIcon>
-                <ListItemText>Xóa cột</ListItemText>
+                <ListItemText sx={{ color: "#e53935" }}>Xóa cột</ListItemText>
               </MenuItem>
               <Dialog open={openDeleteDialog} onClose={handleCancelDelete}>
-                <DialogTitle>Bạn có chắc muốn xóa cột này không?</DialogTitle>
+                <DialogTitle sx={{ fontWeight: 700, color: "#e53935" }}>
+                  Bạn có chắc muốn xóa cột này không?
+                </DialogTitle>
                 <DialogActions>
-                  <Button onClick={handleCancelDelete}>Hủy</Button>
+                  <Button
+                    onClick={handleCancelDelete}
+                    sx={{
+                      color: "#5e6c84",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      "&:hover": { bgcolor: "#e0f7fa", color: "#00C2E0" },
+                    }}
+                  >
+                    Hủy
+                  </Button>
                   <Button
                     onClick={handleConfirmDelete}
-                    // color="red"
                     variant="outlined"
+                    sx={{
+                      color: "#e53935",
+                      borderColor: "#e53935",
+                      fontWeight: 700,
+                      textTransform: "none",
+                      "&:hover": {
+                        bgcolor: "#ffebee",
+                        borderColor: "#e53935",
+                      },
+                    }}
                   >
                     Xóa
                   </Button>
@@ -272,7 +345,7 @@ const Column: React.FC<ColumnProps> = ({
         <ListCards cards={orderedCards} />
 
         {/* Card footer */}
-        <Box sx={{ px: 2, width: "100%" }}>
+        <Box sx={{ px: 2, width: "100%", pb: 2 }}>
           {openAddCard ? (
             <>
               <TextField
@@ -281,6 +354,24 @@ const Column: React.FC<ColumnProps> = ({
                 placeholder="Nhập tiêu đề..."
                 value={cardTitle}
                 onChange={(e) => setCardTitle(e.target.value)}
+                sx={{
+                  bgcolor: "#fff",
+                  borderRadius: 2,
+                  "& .MuiOutlinedInput-root": {
+                    fontSize: 15,
+                    fontWeight: 600,
+                    "& fieldset": {
+                      borderColor: "#b2ebf2",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#00C2E0",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#00C2E0",
+                      borderWidth: "2px",
+                    },
+                  },
+                }}
               />
               <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
                 <Button
@@ -293,10 +384,29 @@ const Column: React.FC<ColumnProps> = ({
                       title: cardTitle,
                     })
                   }
+                  sx={{
+                    bgcolor: "#00C2E0",
+                    color: "#fff",
+                    fontWeight: 700,
+                    textTransform: "none",
+                    px: 2,
+                    "&:hover": {
+                      bgcolor: "#0099b7",
+                    },
+                  }}
                 >
                   Thêm thẻ
                 </Button>
-                <Button size="small" onClick={() => setOpenAddCard(false)}>
+                <Button
+                  size="small"
+                  onClick={() => setOpenAddCard(false)}
+                  sx={{
+                    color: "#5e6c84",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    "&:hover": { bgcolor: "#e0f7fa", color: "#00C2E0" },
+                  }}
+                >
                   Hủy
                 </Button>
               </Box>
@@ -306,6 +416,24 @@ const Column: React.FC<ColumnProps> = ({
               startIcon={<AddCardIcon />}
               onClick={() => setOpenAddCard(true)}
               size="small"
+              sx={{
+                color: "#00C2E0",
+                fontWeight: 700,
+                textTransform: "none",
+                borderRadius: 2,
+                px: 1.5,
+                py: 0.5,
+                mt: 1,
+                background: "rgba(0,194,224,0.07)",
+                boxShadow: "0 2px 8px 0 #00C2E022",
+                transition: "all 0.2s",
+                "&:hover": {
+                  background: "#e0f7fa",
+                  color: "#0099b7",
+                  boxShadow: "0 4px 16px 0 #00C2E044",
+                  transform: "translateY(-2px) scale(1.04)",
+                },
+              }}
             >
               Thêm nội dung mới
             </Button>

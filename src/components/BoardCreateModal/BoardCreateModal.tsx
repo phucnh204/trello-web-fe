@@ -14,6 +14,7 @@ import {
   Paper,
   InputAdornment,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -25,48 +26,7 @@ import axiosClient from "../../apis/axiosClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { getUserId } from "../../utils/auth";
-
-// Danh sách màu
-const BACKGROUND_COLORS = [
-  { color: "#00C2E0", name: "Sky Cyan" },
-  { color: "#0079BF", name: "Ocean Blue" },
-
-  { color: "#51E898", name: "Mint Green" },
-  { color: "#FFAB4A", name: "Amber Orange" },
-  { color: "#FF6F61", name: "Coral Red" },
-  { color: "#C377E0", name: "Lavender Purple" },
-  { color: "#B3BAC5", name: "Cloud Gray" },
-  { color: "#344563", name: "Midnight Navy" },
-  { color: "#F4F5F7", name: "Paper White" },
-  { color: "#6B778C", name: "Slate" },
-  { color: "#E4F0F6", name: "Ice Blue" },
-  { color: "#F9D6C1", name: "Peach" },
-];
-
-// Hàm để kiểm tra độ sáng của màu và trả về màu text phù hợp
-// const getContrastColor = (backgroundColor: string): string => {
-//   // Chuyển đổi hex sang RGB
-//   const hex = backgroundColor.replace("#", "");
-//   const r = parseInt(hex.substr(0, 2), 16);
-//   const g = parseInt(hex.substr(2, 2), 16);
-//   const b = parseInt(hex.substr(4, 2), 16);
-
-//   // Tính độ sáng (luminance)
-//   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-//   // Trả về màu trắng cho background tối, màu tối cho background sáng
-//   return luminance > 0.5 ? "#2c3e50" : "#ffffff";
-// };
-
-// Template suggestions
-const BOARD_TEMPLATES = [
-  "Dự án phát triển sản phẩm",
-  "Kế hoạch marketing",
-  "Quản lý nội dung",
-  "Roadmap công nghệ",
-  "Sprint planning",
-  "Quản lý sự kiện",
-];
+import { BACKGROUND_COLORS, BOARD_TEMPLATES } from "./listConfig";
 
 const BoardCreateModal = ({
   open,
@@ -81,20 +41,30 @@ const BoardCreateModal = ({
   );
   const [isCreating, setIsCreating] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const selectedColor = BACKGROUND_COLORS.find(
     (c) => c.color === backgroundColor
   );
 
-  const handleCreate = async () => {
-    if (!title.trim()) return;
+  // Khi tạo board, lấy màu chính từ gradient để lưu (nếu BE chỉ nhận màu đơn, lấy màu đầu)
+  const getMainColor = (gradient: string) => {
+    const match = gradient.match(/#([0-9a-fA-F]{6})/);
+    return match ? `#${match[1]}` : "#00C2E0";
+  };
 
+  const handleCreate = async () => {
+    if (!title.trim()) {
+      setError("Vui lòng nhập tiêu đề bảng!");
+      return;
+    }
+    setError(null);
     setIsCreating(true);
     try {
       const res = await axiosClient.post("/boards", {
         title,
-        backgroundColor,
+        backgroundColor: getMainColor(backgroundColor),
         ownerIds: [getUserId()],
       });
 
@@ -136,26 +106,37 @@ const BoardCreateModal = ({
           borderRadius: 4,
           overflow: "hidden",
           boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+          background: "#fff",
+          transition: "box-shadow 0.3s",
+          "&:hover": {
+            boxShadow: "0 24px 80px rgba(0,194,224,0.18)",
+          },
         },
       }}
     >
-      {/* Header với gradient */}
+      {/* Header với gradient hoặc màu trắng */}
       <Box
         sx={{
-          background: `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`,
+          background:
+            backgroundColor === "#fff"
+              ? "#fff"
+              : `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`,
           p: 3,
           position: "relative",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-            pointerEvents: "none",
-          },
+          "&::before":
+            backgroundColor === "#fff"
+              ? undefined
+              : {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background:
+                    "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
+                  pointerEvents: "none",
+                },
         }}
       >
         <Box
@@ -167,7 +148,13 @@ const BoardCreateModal = ({
             zIndex: 1,
           }}
         >
-          <DashboardIcon sx={{ color: "#fff", fontSize: 28 }} />
+          <DashboardIcon
+            sx={{
+              color: "blue",
+              fontSize: 32,
+              filter: "drop-shadow(0 2px 8px #0002)",
+            }}
+          />
           <DialogTitle
             sx={{
               color: "#172b4d",
@@ -177,6 +164,7 @@ const BoardCreateModal = ({
               letterSpacing: 0.2,
               mb: 0.5,
               lineHeight: 1.2,
+              textShadow: "0 2px 8px #fff8",
             }}
           >
             Tạo bảng mới
@@ -193,7 +181,10 @@ const BoardCreateModal = ({
             backgroundColor: "rgba(255,255,255,0.1)",
             "&:hover": {
               backgroundColor: "rgba(255,255,255,0.2)",
+              transform: "scale(1.1) rotate(8deg)",
+              boxShadow: "0 2px 8px #fff8",
             },
+            transition: "all 0.2s",
           }}
         >
           <CloseIcon />
@@ -216,14 +207,23 @@ const BoardCreateModal = ({
             fullWidth
             placeholder="Nhập tên cho bảng của bạn..."
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setError(null);
+            }}
             variant="outlined"
+            error={!!error}
+            helperText={error}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <DashboardIcon color="action" />
                 </InputAdornment>
               ),
+              sx: {
+                fontWeight: 600,
+                fontSize: 17,
+              },
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -234,6 +234,7 @@ const BoardCreateModal = ({
                 },
                 "&.Mui-focused": {
                   backgroundColor: "#fff",
+                  boxShadow: "0 2px 8px 0 #00C2E022",
                 },
               },
             }}
@@ -250,6 +251,11 @@ const BoardCreateModal = ({
                 fontSize: "0.85rem",
                 p: 0,
                 minWidth: "auto",
+                fontWeight: 600,
+                "&:hover": {
+                  color: backgroundColor,
+                  textDecoration: "underline",
+                },
               }}
             >
               {showTemplates ? "Ẩn" : "Hiện"} gợi ý template
@@ -268,9 +274,17 @@ const BoardCreateModal = ({
                       onClick={() => handleTemplateSelect(template)}
                       sx={{
                         cursor: "pointer",
+                        fontWeight: 600,
+                        background: "#f4f6fa",
+                        color: "#344563",
+                        border: `1px solid ${backgroundColor}33`,
+                        transition: "all 0.2s",
                         "&:hover": {
                           backgroundColor: backgroundColor + "22",
                           color: backgroundColor,
+                          border: `1.5px solid ${backgroundColor}`,
+                          transform: "scale(1.08)",
+                          boxShadow: `0 2px 8px ${backgroundColor}33`,
                         },
                       }}
                     />
@@ -296,19 +310,17 @@ const BoardCreateModal = ({
 
           <Typography variant="body2" color="#6b778c" mb={2}>
             Màu hiện tại:{" "}
-            <strong style={{ color: backgroundColor }}>
-              {selectedColor?.name}
-            </strong>
+            <strong style={{ color: "#222" }}>{selectedColor?.name}</strong>
           </Typography>
 
           <Grid container spacing={1.5}>
             {BACKGROUND_COLORS.map(({ color, name }) => (
-              <Grid item xs={3} key={color}>
+              <Grid item xs={4} key={color}>
                 <Paper
                   onClick={() => setBackgroundColor(color)}
-                  elevation={backgroundColor === color ? 4 : 1}
+                  elevation={backgroundColor === color ? 6 : 1}
                   sx={{
-                    bgcolor: color,
+                    background: color,
                     width: "100%",
                     height: 50,
                     borderRadius: 2,
@@ -316,17 +328,21 @@ const BoardCreateModal = ({
                     position: "relative",
                     transition: "all 0.2s ease",
                     transform:
-                      backgroundColor === color ? "scale(1.05)" : "scale(1)",
+                      backgroundColor === color ? "scale(1.08)" : "scale(1)",
                     border:
                       backgroundColor === color ? "3px solid #fff" : "none",
                     boxShadow:
                       backgroundColor === color
-                        ? `0 0 0 2px ${color}, 0 4px 12px ${color}44`
-                        : "0 2px 8px rgba(0,0,0,0.1)",
+                        ? `0 0 0 2px #00C2E0, 0 4px 16px #00C2E055`
+                        : "0 2px 8px rgba(0,0,0,0.08)",
                     "&:hover": {
-                      transform: "scale(1.05)",
-                      boxShadow: `0 4px 16px ${color}66`,
+                      transform: "scale(1.08)",
+                      boxShadow: `0 4px 16px #00C2E066`,
+                      zIndex: 2,
                     },
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {backgroundColor === color && (
@@ -337,7 +353,7 @@ const BoardCreateModal = ({
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         color: "#fff",
-                        fontSize: 20,
+                        fontSize: 22,
                         filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))",
                       }}
                     />
@@ -350,8 +366,10 @@ const BoardCreateModal = ({
                     textAlign: "center",
                     mt: 0.5,
                     fontSize: "0.7rem",
-                    color: backgroundColor === color ? color : "text.secondary",
-                    fontWeight: backgroundColor === color ? 600 : 400,
+                    color:
+                      backgroundColor === color ? "#00C2E0" : "text.secondary",
+                    fontWeight: backgroundColor === color ? 700 : 400,
+                    letterSpacing: 0.2,
                   }}
                 >
                   {name}
@@ -369,6 +387,11 @@ const BoardCreateModal = ({
             textTransform: "none",
             color: "text.secondary",
             px: 3,
+            fontWeight: 600,
+            borderRadius: 2,
+            "&:hover": {
+              background: "#f4f6fa",
+            },
           }}
         >
           Hủy
@@ -379,22 +402,22 @@ const BoardCreateModal = ({
           onClick={handleCreate}
           sx={{
             textTransform: "none",
-            fontWeight: 600,
+            fontWeight: 700,
             px: 4,
             py: 1,
             borderRadius: 2,
-            backgroundColor: backgroundColor,
-            color: ["#F4F5F7", "#E4F0F6", "#B3BAC5", "#FFFFFF"].includes(
-              backgroundColor
-            )
-              ? "#172b4d"
-              : "#fff",
+            background: backgroundColor,
+            color: backgroundColor === "#fff" ? "#172b4d" : "#fff",
             boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            position: "relative",
+            overflow: "hidden",
+            transition: "background 0.2s, box-shadow 0.2s, transform 0.2s",
             "&:hover": {
-              backgroundColor:
-                backgroundColor === "#FFFFFF"
-                  ? "#f5f5f5"
-                  : backgroundColor + "dd",
+              background:
+                backgroundColor === "#fff" ? "#f5f5f5" : backgroundColor + "dd",
+              color: backgroundColor === "#fff" ? "#172b4d" : "#fff",
+              transform: "scale(1.04) translateY(-2px)",
+              boxShadow: `0 4px 16px #00C2E044`,
             },
             "&:disabled": {
               backgroundColor: "#e0e0e0",
@@ -402,7 +425,14 @@ const BoardCreateModal = ({
             },
           }}
         >
-          {isCreating ? "Đang tạo..." : "Tạo bảng"}
+          {isCreating ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CircularProgress size={20} color="inherit" />
+              Đang tạo...
+            </Box>
+          ) : (
+            "Tạo bảng"
+          )}
         </Button>
       </DialogActions>
     </Dialog>

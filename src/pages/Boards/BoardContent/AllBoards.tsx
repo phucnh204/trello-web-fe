@@ -23,6 +23,7 @@ import { enqueueSnackbar } from "notistack";
 import { CloseRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { getUserId } from "../../../utils/auth";
+import AddIcon from "@mui/icons-material/Add";
 
 interface Board {
   _id: string;
@@ -32,18 +33,30 @@ interface Board {
   backgroundColor?: string;
 }
 
-// Hàm để kiểm tra độ sáng của màu và trả về màu text phù hợp
+// Hàm kiểm tra màu gradient
+const isGradient = (color: string) => color.startsWith("linear-gradient");
+
+// Hàm lấy màu chữ phù hợp cho nền (gradient hoặc màu đơn)
 const getContrastColor = (backgroundColor: string): string => {
+  if (isGradient(backgroundColor)) {
+    // Nếu là gradient, dùng màu trắng cho chữ
+    return "#fff";
+  }
+  if (backgroundColor === "#fff" || backgroundColor === "#ffffff")
+    return "#222";
   const hex = backgroundColor.replace("#", "");
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
-
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.5 ? "#2c3e50" : "#ffffff";
 };
 
-const AllBoards = () => {
+interface AllBoardsProps {
+  onBoardSelect?: (title: string) => void;
+}
+
+const AllBoards = ({ onBoardSelect }: AllBoardsProps) => {
   const [showBoards] = useState(true);
   const [open, setOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -51,7 +64,7 @@ const AllBoards = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState<string>("");
   const [originalTitle, setOriginalTitle] = useState<string>("");
-  const [navigatingId, setNavigatingId] = useState<string | null>(null); // Thêm state cho loading
+  const [navigatingId] = useState<string | null>(null); // Thêm state cho loading
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
@@ -76,12 +89,15 @@ const AllBoards = () => {
 
   // Handle click với smooth transition
   const handleCardClick = async (boardId: string) => {
-    setNavigatingId(boardId);
-    setSelectedBoardId(boardId);
-
+    const board = data.find((b) => b._id === boardId);
+    if (onBoardSelect && board) {
+      onBoardSelect(board.title);
+    }
+    setSelectedBoardId(boardId); // Đảm bảo cập nhật selectedBoardId khi click
+    // Force update to parent immediately
     setTimeout(() => {
       navigate(`/boards/${boardId}`);
-    }, 100);
+    }, 0);
   };
 
   if (isLoading)
@@ -138,13 +154,15 @@ const AllBoards = () => {
       <Box
         component="aside"
         sx={{
-          width: 400,
+          width: { xs: "100vw", sm: 320, md: 360, lg: 400 },
+          minWidth: { xs: "0", sm: 240, md: 280, lg: 320 },
+          maxWidth: 500,
           borderRight: "0.5px solid #ccc",
-          p: 2,
+          p: { xs: 1, sm: 2 },
           overflowY: "auto",
           bgcolor: "primary.50",
           transition: "width 0.3s ease",
-          mt: 5,
+          mt: { xs: 1, sm: 3, md: 5 },
         }}
       >
         <Collapse in={showBoards}>
@@ -153,6 +171,7 @@ const AllBoards = () => {
               const backgroundColor = board.backgroundColor || "#0079BF";
               const textColor = getContrastColor(backgroundColor);
               const isNavigating = navigatingId === board._id;
+              const isGradientBg = isGradient(backgroundColor);
 
               return (
                 <Box key={board._id} sx={{ position: "relative" }}>
@@ -174,34 +193,47 @@ const AllBoards = () => {
                       }
                       onMouseLeave={() => setHoveredId(null)}
                       sx={{
-                        width: 400,
+                        width: "100%",
+                        minWidth: 0,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         gap: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                        boxShadow: selectedBoardId === board._id ? 6 : 1, // nổi bật hơn
+                        p: { xs: 1, sm: 1.5 },
+                        borderRadius: 3,
+                        boxShadow: selectedBoardId === board._id ? 8 : 2,
                         border:
                           selectedBoardId === board._id
                             ? "2.5px solid #0c66e4"
-                            : "none", // viền xanh
-                        transition: "all 0.2s cubic-bezier(.4,2,.6,1)",
-                        backgroundColor: backgroundColor,
+                            : "none",
+                        transition: "all 0.22s cubic-bezier(.4,2,.6,1)",
+                        background: isGradientBg ? backgroundColor : undefined,
+                        backgroundColor: !isGradientBg
+                          ? backgroundColor
+                          : undefined,
                         opacity: isNavigating ? 0.7 : 1,
                         transform: isNavigating
                           ? "scale(0.98)"
                           : hoveredId === board._id
-                          ? "translateY(-2px)"
+                          ? "translateY(-2px) scale(1.02)"
                           : "none",
                         "&:hover": !isNavigating
                           ? {
-                              boxShadow: selectedBoardId === board._id ? 8 : 2,
+                              boxShadow: selectedBoardId === board._id ? 12 : 4,
+                              filter: "brightness(1.04)",
+                              transform: "scale(1.03) translateY(-3px)",
                             }
                           : {},
+                        color: textColor,
+                        position: "relative",
+                        overflow: "hidden",
+                        borderBottom:
+                          backgroundColor === "#fff"
+                            ? "1.5px solid #e0e0e0"
+                            : undefined,
                       }}
                     >
-                      <StickyNote2 sx={{ color: textColor }} />
+                      <StickyNote2 sx={{ color: textColor, opacity: 0.85 }} />
 
                       {editingId === board._id ? (
                         <TextField
@@ -225,7 +257,9 @@ const AllBoards = () => {
                               color: textColor,
                             },
                             "& .MuiOutlinedInput-root": {
-                              backgroundColor: "rgba(255,255,255,0.2)",
+                              backgroundColor: isGradientBg
+                                ? "rgba(255,255,255,0.18)"
+                                : "rgba(255,255,255,0.2)",
                               "& fieldset": {
                                 borderColor: "rgba(255,255,255,0.3)",
                               },
@@ -241,7 +275,7 @@ const AllBoards = () => {
                       ) : (
                         <Typography
                           variant="subtitle1"
-                          fontWeight={600}
+                          fontWeight={700}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -254,8 +288,13 @@ const AllBoards = () => {
                             textOverflow: "ellipsis",
                             flex: 1,
                             color: textColor,
+                            letterSpacing: 0.2,
                             "&:hover": {
                               textDecoration: "underline",
+                              color: "#fff",
+                              textShadow: isGradientBg
+                                ? "0 2px 8px #0006"
+                                : undefined,
                             },
                           }}
                         >
@@ -276,7 +315,9 @@ const AllBoards = () => {
                             opacity: 0.8,
                             transition: "all 0.2s ease",
                             "&:hover": {
-                              bgcolor: "rgba(255,255,255,0.2)",
+                              bgcolor: isGradientBg
+                                ? "rgba(255,255,255,0.18)"
+                                : "rgba(255,255,255,0.2)",
                               opacity: 1,
                               transform: "scale(1.1)",
                             },
@@ -285,6 +326,30 @@ const AllBoards = () => {
                           <CloseRounded fontSize="small" />
                         </IconButton>
                       )}
+
+                      {isNavigating && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            width: "100%",
+                            height: "100%",
+                            bgcolor: isGradientBg
+                              ? "rgba(0,0,0,0.08)"
+                              : "rgba(255,255,255,0.18)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 10,
+                          }}
+                        >
+                          <CircularProgress
+                            size={28}
+                            sx={{ color: textColor }}
+                          />
+                        </Box>
+                      )}
                     </Card>
                   </Box>
                 </Box>
@@ -292,17 +357,30 @@ const AllBoards = () => {
             })}
 
             <Button
-              variant="outlined"
               onClick={() => setOpen(true)}
+              startIcon={<AddIcon />}
               sx={{
-                borderRadius: 2,
-                textTransform: "none",
+                width: "100%",
+                borderRadius: 3,
+                px: { xs: 1, sm: 3 },
+                py: { xs: 1, sm: 1.2 },
                 fontWeight: 600,
-                py: 1.5,
-                transition: "all 0.2s ease",
+                fontSize: { xs: 15, sm: 16 },
+                color: "#00C2E0",
+                background: "rgba(0,194,224, 0.08)",
+                backdropFilter: "blur(6px)",
+                border: "1.5px solid rgba(0,194,224, 0.2)",
+                textTransform: "none",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1)",
+                transition: "all 0.25s ease-in-out",
                 "&:hover": {
+                  background: "rgba(0,194,224, 0.15)",
+                  boxShadow: "0 4px 16px rgba(0,194,224, 0.25)",
                   transform: "translateY(-1px)",
-                  boxShadow: 2,
+                },
+                "&:active": {
+                  transform: "scale(0.98)",
+                  boxShadow: "0 2px 8px rgba(0,194,224, 0.3)",
                 },
               }}
             >

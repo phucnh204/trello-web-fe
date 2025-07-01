@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, Fade, Typography } from "@mui/material";
 import ListColumns from "./ListColumns/ListColumns";
 import { BoardProps } from "../../../apis/type-mock-data";
 import { mapOrder } from "../../../utils/sort";
@@ -29,6 +29,7 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import { boardAPI } from "../../../apis/board.api";
 import { cardAPI } from "../../../apis/card.api";
+import { LightbulbCircleOutlined } from "@mui/icons-material";
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
@@ -51,11 +52,15 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
   const [activeDragItemData, setActiveDragItemData] = useState<
     IColumn | ICard | null
   >(null);
+  const [selectedBoardTitle, setSelectedBoardTitle] = useState<string | null>(
+    null
+  );
 
-  const findColumnByCardId = (cardId: string) => {
-    if (cardId === "__empty__") {
-      // Trả về column chưa có card nào
-      return orderedColumnsState.find((col) => col.cards.length === 0);
+  // Sửa hàm này để nhận thêm overColumnId
+  const findColumnByCardId = (cardId: string, overColumnId?: string) => {
+    if (cardId === "__empty__" && overColumnId) {
+      // Trả về column đúng theo overColumnId khi thả vào vùng trống
+      return orderedColumnsState.find((col) => col._id === overColumnId);
     }
     return orderedColumnsState.find((column) =>
       column?.cards?.map((card) => card._id)?.includes(cardId)
@@ -91,16 +96,22 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     } = active;
     const { id: overCardId } = over;
 
+    // Nếu thả vào vùng trống, over.id là columnId
     const activeColumn = findColumnByCardId(activeDraggingCardId.toString());
-    const overColumn = findColumnByCardId(overCardId.toString());
+    const overColumn =
+      overCardId === "__empty__"
+        ? findColumnByCardId(overCardId.toString(), over.data.current?.columnId)
+        : findColumnByCardId(overCardId.toString());
 
     if (!activeColumn || !overColumn) return;
 
     if (activeColumn._id !== overColumn._id) {
       setOrderedColumnsState((preColumns) => {
-        const overCardIndex = overColumn?.cards?.findIndex(
-          (card) => card._id === overCardId
-        );
+        // Lấy index đúng khi thả vào vùng trống
+        const overCardIndex =
+          overCardId === "__empty__"
+            ? 0
+            : overColumn?.cards?.findIndex((card) => card._id === overCardId);
 
         const isBelowOverItem =
           active.rect.current.translated &&
@@ -151,7 +162,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         return nextColumns;
       });
     }
-    
   };
 
   // Kết thúc kéo - drag 1 phần tử
@@ -160,13 +170,50 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       const { active, over } = event;
       if (!active || !over) return;
 
+      // Xác định column đích khi thả vào vùng trống
+      let overColumn: IColumn | undefined;
+      if (over.id === "__empty__") {
+        // Tìm columnId từ data.current, nếu không có thì lấy theo index, nếu vẫn không có thì lấy column rỗng gần nhất vị trí con trỏ
+        let overColumnId =
+          over.data?.current?.columnId ??
+          (typeof over.data?.current?.index === "number"
+            ? orderedColumnsState[over.data.current.index]?._id
+            : undefined);
+
+        // Nếu vẫn chưa xác định được, dò theo vị trí con trỏ (left) để tìm column rỗng gần nhất
+        if (!overColumnId && over.rect?.left !== undefined) {
+          const emptyColumns = orderedColumnsState.filter(
+            (col) => col.cards.length === 0
+          );
+          if (emptyColumns.length > 0) {
+            // Tìm column rỗng có vị trí gần nhất với con trỏ
+            let minDiff = Infinity;
+            let nearestCol: IColumn | undefined;
+            emptyColumns.forEach((col) => {
+              const colIndex = orderedColumnsState.findIndex(
+                (c) => c._id === col._id
+              );
+              // Ước lượng vị trí left của column dựa vào index (giả định mỗi column rộng 300px)
+              const colLeft = colIndex * 300;
+              const diff = Math.abs(colLeft - over.rect.left);
+              if (diff < minDiff) {
+                minDiff = diff;
+                nearestCol = col;
+              }
+            });
+            overColumnId = nearestCol?._id;
+          }
+        }
+
+        overColumn = overColumnId
+          ? orderedColumnsState.find((col) => col._id === overColumnId)
+          : undefined;
+      } else {
+        overColumn = findColumnByCardId(over.id.toString());
+      }
       const activeColumn = findColumnByCardId(active.id.toString());
-      const overColumn = findColumnByCardId(over.id.toString());
       if (!activeColumn || !overColumn) return;
 
-      // const oldIndex = activeColumn.cards.findIndex(
-      //   (card) => card._id === active.id
-      // );
       const newIndex =
         over.id === "__empty__"
           ? 0
@@ -296,6 +343,58 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
   return (
     <>
+      {/* Hiển thị title board ở góc giữa trên */}
+      {selectedBoardTitle && (
+        <Fade in={true} timeout={500}>
+          <Box
+            sx={{
+              position: "fixed",
+              top: 24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1300,
+              bgcolor: "#e3f2fd",
+              px: 3.5,
+              py: 1.5,
+              borderRadius: 3,
+              boxShadow: "0 8px 24px rgba(0, 194, 224, 0.15)",
+              fontWeight: 700,
+              fontSize: 22,
+              color: "#1565c0",
+              textAlign: "center",
+              minWidth: 200,
+              maxWidth: "70vw",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              pointerEvents: "none",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <LightbulbCircleOutlined sx={{ fontSize: 24, color: "#0288d1" }} />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                color: "#1565c0",
+                letterSpacing: 0.5,
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                m: 0,
+                p: 0,
+                fontSize: "1.15rem",
+              }}
+            >
+              {selectedBoardTitle}
+            </Typography>
+          </Box>
+        </Fade>
+      )}
+
       <Button
         startIcon={
           showSidebar ? <KeyboardDoubleArrowLeftIcon /> : <EventNoteIcon />
@@ -323,30 +422,44 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         <Box
           component="aside"
           sx={{
-            width: { xs: "100vw", md: 400 },
+            width: { xs: "100vw", sm: 280, md: 340, lg: 400 },
+            minWidth: { xs: 0, sm: 180, md: 240, lg: 320 },
+            maxWidth: { xs: "100vw", sm: 340, md: 400, lg: 500 },
             position: { xs: "relative", md: "absolute" },
             left: { xs: 0, md: showSidebar ? 0 : -400 },
             top: 0,
             height: { xs: "auto", md: "100%" },
-            p: { xs: 1, md: 2 },
+            p: { xs: 0.5, sm: 1.5, md: 2 },
             overflowY: "auto",
             bgcolor: "primary.50",
-            transition: "left 0.3s ease",
+            transition: "left 0.3s ease, width 0.3s, padding 0.3s",
             zIndex: 9,
             display: { xs: showSidebar ? "block" : "none", md: "block" },
+            // borderRight: { xs: "none", md: "0.5px solid #ccc" },
+            boxSizing: "border-box",
           }}
         >
-          <AllBoards />
+          <AllBoards
+            onBoardSelect={(title: string) => setSelectedBoardTitle(title)}
+          />
         </Box>
 
         {/* MAIN CONTENT */}
         <Box
           sx={{
             flex: 1,
-            marginLeft: { xs: 0, md: showSidebar ? "400px" : 0 },
-            transition: "margin-left 0.3s ease",
+            marginLeft: {
+              xs: 0,
+              md: showSidebar ? "340px" : 0,
+              lg: showSidebar ? "400px" : 0,
+            },
+            transition: "margin-left 0.3s cubic-bezier(.4,2,.6,1)",
             minWidth: 0,
             p: { xs: 0.5, md: 0 },
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #34495e 0%, #1976d2 100%)"
+                : "linear-gradient(135deg, #e0f7fa 0%, #f4f6fa 100%)",
           }}
         >
           <DndContext
@@ -358,10 +471,12 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           >
             <Box
               sx={{
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark" ? "#34495e" : "#1976d2",
+                bgcolor: "transparent",
                 height: "calc(100vh - 55px - 65px)",
                 p: "10px 0",
+                borderRadius: 3,
+                boxShadow: "0 2px 12px 0 #00C2E022",
+                transition: "box-shadow 0.2s",
               }}
             >
               <ListColumns
