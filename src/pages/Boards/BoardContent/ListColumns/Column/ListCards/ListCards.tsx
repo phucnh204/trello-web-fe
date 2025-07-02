@@ -23,7 +23,6 @@ function EmptyCardPlaceholder() {
         border: "2px dashed #00C2E0",
         opacity: 0.5,
         margin: "6px 0",
-        pointerEvents: "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -31,8 +30,21 @@ function EmptyCardPlaceholder() {
         color: "#00C2E0",
         fontWeight: 500,
         fontSize: 15,
+        cursor: "pointer",
+        transition: "background 0.2s, border 0.2s",
       }}
       data-empty-drop
+      onMouseOver={(e) => {
+        (e.currentTarget as HTMLDivElement).style.background = "#e0f7fa";
+        (e.currentTarget as HTMLDivElement).style.border = "2px solid #00C2E0";
+        (e.currentTarget as HTMLDivElement).style.opacity = "0.8";
+      }}
+      onMouseOut={(e) => {
+        (e.currentTarget as HTMLDivElement).style.background =
+          "linear-gradient(90deg, #e0f7fa 0%, #f4f6fa 100%)";
+        (e.currentTarget as HTMLDivElement).style.border = "2px dashed #00C2E0";
+        (e.currentTarget as HTMLDivElement).style.opacity = "0.5";
+      }}
     >
       Thả thẻ vào đây
     </div>
@@ -60,11 +72,11 @@ function ListCards({ cards }: ListCardsProps) {
           borderRadius: 2,
         }}
       >
-        {cards.length === 0 ? (
-          <EmptyCardPlaceholder />
-        ) : (
-          cards.map((card) => <Card key={card._id} card={card} />)
-        )}
+        {/* Always render cards (if any), then the placeholder */}
+        {cards.map((card) => (
+          <Card key={card._id} card={card} />
+        ))}
+        <EmptyCardPlaceholder />
       </Box>
     </SortableContext>
   );
