@@ -56,15 +56,16 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     null
   );
 
-  // Sửa hàm này để nhận thêm overColumnId
-  const findColumnByCardId = (cardId: string, overColumnId?: string) => {
-    if (cardId === "__empty__" && overColumnId) {
-      // Trả về column đúng theo overColumnId khi thả vào vùng trống
-      return orderedColumnsState.find((col) => col._id === overColumnId);
-    }
+  // Cải thiện hàm findColumnByCardId
+  const findColumnByCardId = (cardId: string) => {
     return orderedColumnsState.find((column) =>
-      column?.cards?.map((card) => card._id)?.includes(cardId)
+      column?.cards?.some((card) => card._id === cardId)
     );
+  };
+
+  // Hàm tìm column bằng ID
+  const findColumnById = (columnId: string) => {
+    return orderedColumnsState.find((column) => column._id === columnId);
   };
 
   // Bắt đầu kéo - drag 1 phần tử
@@ -96,22 +97,29 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     } = active;
     const { id: overCardId } = over;
 
-    // Nếu thả vào vùng trống, over.id là columnId
     const activeColumn = findColumnByCardId(activeDraggingCardId.toString());
-    const overColumn =
-      overCardId === "__empty__"
-        ? findColumnByCardId(overCardId.toString(), over.data.current?.columnId)
-        : findColumnByCardId(overCardId.toString());
+
+    let overColumn: IColumn | undefined;
+
+    // Xử lý khi thả vào vùng trống (empty column)
+    if (overCardId === "__empty__") {
+      const overColumnId = over.data?.current?.columnId;
+      overColumn = overColumnId ? findColumnById(overColumnId) : undefined;
+    } else {
+      // Xử lý khi thả vào card khác
+      overColumn = findColumnByCardId(overCardId.toString());
+    }
 
     if (!activeColumn || !overColumn) return;
 
+    // Chỉ xử lý khi kéo card sang column khác
     if (activeColumn._id !== overColumn._id) {
       setOrderedColumnsState((preColumns) => {
-        // Lấy index đúng khi thả vào vùng trống
         const overCardIndex =
           overCardId === "__empty__"
             ? 0
-            : overColumn?.cards?.findIndex((card) => card._id === overCardId);
+            : overColumn?.cards?.findIndex((card) => card._id === overCardId) ??
+              0;
 
         const isBelowOverItem =
           active.rect.current.translated &&
@@ -122,7 +130,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         const newCardIndex =
           overCardIndex >= 0
             ? overCardIndex + modifier
-            : overColumn?.cards.length + 1;
+            : overColumn?.cards.length ?? 0;
 
         const nextColumns = cloneDeep(preColumns);
 
@@ -135,20 +143,22 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
         );
 
         if (nextActiveColumn) {
+          // Xóa card khỏi column cũ
           nextActiveColumn.cards = nextActiveColumn.cards.filter(
             (card: ICard) => card._id !== activeDraggingCardId
           );
-
           nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
             (card: ICard) => card._id
           );
         }
 
         if (nextOverColumn) {
+          // Xóa card nếu đã tồn tại trong column đích (tránh duplicate)
           nextOverColumn.cards = nextOverColumn.cards.filter(
             (card: ICard) => card._id !== activeDraggingCardId
           );
 
+          // Thêm card vào vị trí mới
           nextOverColumn.cards.splice(
             newCardIndex,
             0,
@@ -159,6 +169,7 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
             (card: ICard) => card._id
           );
         }
+
         return nextColumns;
       });
     }
@@ -166,62 +177,72 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 
   // Kết thúc kéo - drag 1 phần tử
   const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!active || !over) return;
+
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
-      const { active, over } = event;
-      if (!active || !over) return;
-
-      // Xác định column đích khi thả vào vùng trống
       let overColumn: IColumn | undefined;
-      if (over.id === "__empty__") {
-        // Tìm columnId từ data.current, nếu không có thì lấy theo index, nếu vẫn không có thì lấy column rỗng gần nhất vị trí con trỏ
-        let overColumnId =
-          over.data?.current?.columnId ??
-          (typeof over.data?.current?.index === "number"
-            ? orderedColumnsState[over.data.current.index]?._id
-            : undefined);
 
-        // Nếu vẫn chưa xác định được, dò theo vị trí con trỏ (left) để tìm column rỗng gần nhất
-        if (!overColumnId && over.rect?.left !== undefined) {
-          const emptyColumns = orderedColumnsState.filter(
-            (col) => col.cards.length === 0
-          );
-          if (emptyColumns.length > 0) {
-            // Tìm column rỗng có vị trí gần nhất với con trỏ
-            let minDiff = Infinity;
-            let nearestCol: IColumn | undefined;
-            emptyColumns.forEach((col) => {
-              const colIndex = orderedColumnsState.findIndex(
-                (c) => c._id === col._id
-              );
-              // Ước lượng vị trí left của column dựa vào index (giả định mỗi column rộng 300px)
-              const colLeft = colIndex * 300;
-              const diff = Math.abs(colLeft - over.rect.left);
-              if (diff < minDiff) {
-                minDiff = diff;
-                nearestCol = col;
-              }
-            });
-            overColumnId = nearestCol?._id;
-          }
+      if (over.id === "__empty__") {
+        // Ưu tiên lấy columnId từ data.current, nếu không có thì lấy theo index, nếu vẫn không có thì fallback theo vị trí con trỏ
+        let overColumnId = over.data?.current?.columnId;
+
+        if (!overColumnId && typeof over.data?.current?.index === "number") {
+          overColumnId = orderedColumnsState[over.data.current.index]?._id;
         }
 
-        overColumn = overColumnId
-          ? orderedColumnsState.find((col) => col._id === overColumnId)
-          : undefined;
+        // Nếu vẫn không xác định được, dò theo vị trí con trỏ để lấy column gần nhất
+        if (!overColumnId && active.rect.current.translated && over.rect) {
+          const pointerX = active.rect.current.translated.left;
+          let minDiff = Infinity;
+          let nearestCol: IColumn | undefined;
+          orderedColumnsState.forEach((col, idx) => {
+            // Ước lượng vị trí left của column dựa vào index (giả định mỗi column rộng 300px)
+            const colLeft = over.rect.left + idx * over.rect.width;
+            const diff = Math.abs(colLeft - pointerX);
+            if (diff < minDiff) {
+              minDiff = diff;
+              nearestCol = col;
+            }
+          });
+          overColumnId = nearestCol?._id;
+        }
+
+        overColumn = overColumnId ? findColumnById(overColumnId) : undefined;
       } else {
         overColumn = findColumnByCardId(over.id.toString());
       }
+
       const activeColumn = findColumnByCardId(active.id.toString());
       if (!activeColumn || !overColumn) return;
 
+      // Nếu kéo vào vùng trống, luôn thêm vào cuối column
       const newIndex =
         over.id === "__empty__"
-          ? 0
+          ? overColumn.cards.length
           : overColumn.cards.findIndex((card) => card._id === over.id);
+
+      // Nếu kéo trong cùng một cột và vị trí không đổi thì không làm gì cả
+      if (
+        activeColumn._id === overColumn._id &&
+        activeColumn.cards.findIndex((card) => card._id === active.id) === newIndex
+      ) {
+        setActiveDragItemId(null);
+        setActiveDragItemType(null);
+        setActiveDragItemData(null);
+        return;
+      }
 
       // Cập nhật UI
       setOrderedColumnsState((prevColumns) => {
         const newColumns = cloneDeep(prevColumns);
+
+        // Tìm card data
+        const cardData = activeColumn.cards.find(
+          (card) => card._id === active.id
+        );
+
+        if (!cardData) return prevColumns;
 
         // Xóa card khỏi column cũ
         const fromCol = newColumns.find((col) => col._id === activeColumn._id);
@@ -232,54 +253,63 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           fromCol.cardOrderIds = fromCol.cards.map((card) => card._id);
         }
 
-        // Thêm card vào column mới đúng vị trí
+        // Thêm card vào column mới hoặc vị trí mới trong cùng cột
         const toCol = newColumns.find((col) => col._id === overColumn._id);
         if (toCol) {
-          const cardData = activeColumn.cards.find(
-            (card) => card._id === active.id
+          // Đảm bảo không có duplicate
+          toCol.cards = toCol.cards.filter((card) => card._id !== active.id);
+
+          // Thêm vào vị trí đúng
+          const insertIndex = Math.min(
+            Math.max(0, newIndex),
+            toCol.cards.length
           );
-          if (cardData) {
-            toCol.cards.splice(newIndex, 0, cardData);
-            toCol.cardOrderIds = toCol.cards.map((card) => card._id);
-          }
+          toCol.cards.splice(insertIndex, 0, cardData);
+          toCol.cardOrderIds = toCol.cards.map((card) => card._id);
         }
+
         return newColumns;
       });
 
-      // GỌI API LƯU VỊ TRÍ MỚI (dù cùng hay khác column)
-      cardAPI.moveCard(active.id.toString(), {
-        newColumnId: overColumn._id,
-        newPosition: newIndex,
-      });
-
-      setActiveDragItemId(null);
-      setActiveDragItemType(null);
-      setActiveDragItemData(null);
-      return;
-    }
-
-    // Xử lý kéo thả column như cũ
-    const { active, over } = event;
-    if (!over) return;
-    if (active.id !== over.id) {
-      const oldIndex = orderedColumnsState.findIndex(
-        (c) => c._id === active.id
-      );
-      const newIndex = orderedColumnsState.findIndex((c) => c._id === over.id);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const dndOrderedColumns = arrayMove(
-          orderedColumnsState,
-          oldIndex,
-          newIndex
+      // Gọi API để lưu thay đổi cả khi kéo trong cùng cột hoặc sang cột khác
+      try {
+        cardAPI.moveCard(active.id.toString(), {
+          newColumnId: overColumn._id,
+          newPosition: Math.max(0, newIndex),
+        });
+      } catch (error) {
+        console.error("Error moving card:", error);
+      }
+    } else if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+      // Xử lý kéo thả column
+      if (active.id !== over.id) {
+        const oldIndex = orderedColumnsState.findIndex(
+          (c) => c._id === active.id
         );
-        setOrderedColumnsState(dndOrderedColumns);
+        const newIndex = orderedColumnsState.findIndex(
+          (c) => c._id === over.id
+        );
 
-        // Gửi thứ tự mới của columns lên server để lưu lại
-        const newColumnOrderIds = dndOrderedColumns.map((c) => c._id);
-        boardAPI.updateColumnOrder(board._id, newColumnOrderIds);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const dndOrderedColumns = arrayMove(
+            orderedColumnsState,
+            oldIndex,
+            newIndex
+          );
+          setOrderedColumnsState(dndOrderedColumns);
+
+          // Gửi thứ tự mới lên server
+          const newColumnOrderIds = dndOrderedColumns.map((c) => c._id);
+          try {
+            boardAPI.updateColumnOrder(board._id, newColumnOrderIds);
+          } catch (error) {
+            console.error("Error updating column order:", error);
+          }
+        }
       }
     }
 
+    // Reset drag state
     setActiveDragItemId(null);
     setActiveDragItemType(null);
     setActiveDragItemData(null);
@@ -320,7 +350,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
     );
   };
 
-  // Handler mới cho việc xóa column
   const handleColumnDeleted = (deletedColumnId: string) => {
     setOrderedColumnsState((prev) =>
       prev.filter((col) => col._id !== deletedColumnId)
@@ -435,7 +464,6 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
             transition: "left 0.3s ease, width 0.3s, padding 0.3s",
             zIndex: 9,
             display: { xs: showSidebar ? "block" : "none", md: "block" },
-            // borderRight: { xs: "none", md: "0.5px solid #ccc" },
             boxSizing: "border-box",
           }}
         >
