@@ -225,7 +225,8 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
       // Nếu kéo trong cùng một cột và vị trí không đổi thì không làm gì cả
       if (
         activeColumn._id === overColumn._id &&
-        activeColumn.cards.findIndex((card) => card._id === active.id) === newIndex
+        activeColumn.cards.findIndex((card) => card._id === active.id) ===
+          newIndex
       ) {
         setActiveDragItemId(null);
         setActiveDragItemType(null);
