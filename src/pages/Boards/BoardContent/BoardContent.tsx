@@ -30,6 +30,7 @@ import EventNoteIcon from "@mui/icons-material/EventNote";
 import { boardAPI } from "../../../apis/board.api";
 import { cardAPI } from "../../../apis/card.api";
 import { LightbulbCircleOutlined } from "@mui/icons-material";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: "ACTIVE_DRAG_ITEM_TYPE_COLUMN",
@@ -37,6 +38,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 };
 
 const BoardContent: React.FC<BoardProps> = ({ board }) => {
+  const queryClient = useQueryClient();
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 10 },
   });
@@ -275,47 +277,20 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           return newColumns;
         });
       } else {
-        // Kéo sang column khác: cập nhật state và gọi API lưu DB
-        setOrderedColumnsState((prevColumns) => {
-          const newColumns = cloneDeep(prevColumns);
-          const sourceColumn = newColumns.find(
-            (col) => col._id === activeColumn._id
-          );
-          const targetColumn = newColumns.find(
-            (col) => col._id === overColumn._id
-          );
-          if (sourceColumn && targetColumn) {
-            sourceColumn.cards = sourceColumn.cards.filter(
-              (card) => card._id !== activeDraggingCardId
-            );
-            sourceColumn.cardOrderIds = sourceColumn.cards.map(
-              (card) => card._id
-            );
-            const updatedCard = {
-              ...activeDraggingCardData,
-              columnId: overColumn._id,
-            } as ICard;
-            targetColumn.cards = targetColumn.cards.filter(
-              (card) => card._id !== activeDraggingCardId
-            );
-            targetColumn.cards.splice(newIndex, 0, updatedCard);
-            targetColumn.cardOrderIds = targetColumn.cards.map(
-              (card) => card._id
-            );
-          }
-          return newColumns;
-        });
-
-        // Gọi API lưu DB khi kéo sang column khác, KHÔNG gọi lại getFullBoard
+        // Kéo sang column khác: chỉ gọi API, không cập nhật state thủ công
         try {
           cardAPI
             .moveCard(activeDraggingCardId.toString(), {
               newColumnId: overColumn._id,
               newPosition: newIndex,
             })
-            // .then(() => {
-            //   // Đã cập nhật state local, không cần gọi lại getFullBoard ở đây
-            // });
+            .then(() => {
+              // invalidate để refetch lại dữ liệu board mới nhất từ server
+              queryClient.invalidateQueries({ queryKey: ["board", board._id] });
+              queryClient.invalidateQueries({
+                queryKey: ["columns", board._id],
+              });
+            })
             .catch((error: any) => {
               console.error("Error moving card:", error);
             });
@@ -603,3 +578,4 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 };
 
 export default BoardContent;
+                      
