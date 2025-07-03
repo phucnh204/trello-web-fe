@@ -7,6 +7,7 @@ export const getToken = () => {
 };
 
 export const removeToken = () => {
+  localStorage.removeItem("hasSeenWelcome");
   localStorage.removeItem("access_token");
 };
 
@@ -21,6 +22,7 @@ export const getUserInfo = () => {
 };
 
 export const removeUserInfo = () => {
+  localStorage.removeItem("hasSeenWelcome");
   localStorage.removeItem("user_info");
 };
 

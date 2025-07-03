@@ -578,4 +578,3 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
 };
 
 export default BoardContent;
-                      

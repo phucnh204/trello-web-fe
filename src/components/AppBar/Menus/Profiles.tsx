@@ -75,6 +75,7 @@ function Profiles() {
           onClick={() => {
             localStorage.removeItem("access_token");
             localStorage.removeItem("user_info");
+            localStorage.removeItem("hasSeenWelcome");
             window.location.href = "/login";
           }}
         >

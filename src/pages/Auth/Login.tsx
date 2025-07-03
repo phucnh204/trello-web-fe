@@ -1,11 +1,13 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { Box, Paper, Typography, Avatar, Fade, Alert } from "@mui/material";
 import { saveToken, saveUserInfo } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useState } from "react";
 import axiosClient from "../../apis/axiosClient";
-import { logo } from "@/assets/public/logo.png";
+import WelcomeModal from "../../components/WelcomeModal/WelcomeModal";
+
+// import { logo } from "@/assets/public/logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,25 +41,63 @@ export default function Login() {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bgcolor="linear-gradient(135deg, #e0f7fa 0%, #f4f5f7 100%)"
-      sx={{ transition: "background 0.5s" }}
+      sx={{
+        background:
+          "linear-gradient(120deg, #e0f7fa 0%, #b2ebf2 50%, #f4f5f7 100%)",
+        transition: "background 0.5s",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
+      {/*  */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: 600,
+          height: 600,
+          top: -120,
+          left: -120,
+          background: "radial-gradient(circle, #00C2E0 0%, transparent 70%)",
+          opacity: 0.18,
+          zIndex: 0,
+          filter: "blur(12px)",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          width: 400,
+          height: 400,
+          bottom: -80,
+          right: -80,
+          background: "radial-gradient(circle, #1976d2 0%, transparent 70%)",
+          opacity: 0.12,
+          zIndex: 0,
+          filter: "blur(16px)",
+        }}
+      />
+      <WelcomeModal />
       <Fade in timeout={600}>
         <Paper
-          elevation={8}
+          elevation={12}
           sx={{
             p: { xs: 3, sm: 5 },
-            minWidth: 340,
-            borderRadius: 4,
+            minWidth: { xs: 320, sm: 380 },
+            maxWidth: 420,
+            borderRadius: 5,
             textAlign: "center",
             boxShadow: "0 8px 32px 0 rgba(0,194,224,0.18)",
             background: "rgba(255,255,255,0.97)",
-            transition: "box-shadow 0.3s",
+            transition: "box-shadow 0.3s, transform 0.2s",
+            position: "relative",
+            zIndex: 1,
             "&:hover": {
-              boxShadow: "0 12px 40px 0 rgba(0,194,224,0.22)",
+              boxShadow: "0 16px 48px 0 rgba(0,194,224,0.22)",
+              transform: "translateY(-2px) scale(1.01)",
             },
           }}
         >
+          {/* Logo và thương hiệu */}
           <Box
             onMouseEnter={() => setLogoHover(true)}
             onMouseLeave={() => setLogoHover(false)}
@@ -67,42 +107,64 @@ export default function Login() {
               alignItems: "center",
               mb: 2,
               transition: "transform 0.3s",
-              transform: logoHover ? "scale(1.12) rotate(-8deg)" : "scale(1)",
+              transform: logoHover ? "scale(1.13) rotate(-8deg)" : "scale(1)",
               cursor: "pointer",
+              userSelect: "none",
             }}
           >
             <Avatar
               src={logo}
               alt="Trello Logo"
               sx={{
-                width: 64,
-                height: 64,
+                width: 68,
+                height: 68,
                 boxShadow: logoHover
-                  ? "0 4px 24px 0 #00C2E055"
-                  : "0 2px 8px 0 #00C2E022",
+                  ? "0 6px 32px 0 #00C2E055"
+                  : "0 2px 12px 0 #00C2E022",
                 transition: "all 0.3s",
                 bgcolor: "#fff",
+                border: "2.5px solid #00C2E0",
               }}
             />
           </Box>
           <Typography
             variant="h5"
-            fontWeight={700}
-            mb={1}
-            color="#222"
+            fontWeight={800}
+            mb={0.5}
+            color="#1976d2"
             sx={{
-              letterSpacing: 0.5,
-              textShadow: "0 1px 0 #fff",
+              letterSpacing: 0.7,
+              textShadow: "0 1px 0 #fff, 0 2px 8px #00C2E022",
+              fontSize: { xs: 22, sm: 26 },
             }}
           >
             Đăng nhập
           </Typography>
-          <Typography color="text.secondary" mb={3} sx={{ fontSize: 17 }}>
+          <Typography color="text.secondary" mb={2.5} sx={{ fontSize: 17 }}>
             Quản lý công việc hiệu quả cùng{" "}
-            <span style={{ color: "#00C2E0", fontWeight: 600 }}>
+            <span style={{ color: "#00C2E0", fontWeight: 700 }}>
               Task Online
             </span>
           </Typography>
+          {/* Hướng dẫn sử dụng */}
+          <Box
+            sx={{
+              mb: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1,
+              color: "#0288d1",
+              fontSize: 15,
+              fontWeight: 500,
+              opacity: 0.92,
+            }}
+          >
+            <span role="img" aria-label="info">
+              💡
+            </span>
+            Đăng nhập bằng Google để bắt đầu sử dụng!
+          </Box>
           {errorMsg && (
             <Alert severity="error" sx={{ mb: 2, fontSize: 15 }}>
               {errorMsg}
@@ -115,11 +177,15 @@ export default function Login() {
               mb: 1,
               "& > div": {
                 boxShadow: "0 2px 12px 0 #00C2E033",
-                borderRadius: 2,
-                transition: "box-shadow 0.2s",
+                borderRadius: 2.5,
+                transition: "box-shadow 0.2s, transform 0.2s",
                 "&:hover": {
-                  boxShadow: "0 4px 24px 0 #00C2E055",
+                  boxShadow: "0 6px 24px 0 #00C2E055",
+                  transform: "scale(1.04)",
                 },
+                minWidth: 220,
+                minHeight: 48,
+                background: "#fff",
               },
             }}
           >
@@ -129,8 +195,26 @@ export default function Login() {
                 setErrorMsg("Đăng nhập thất bại. Vui lòng thử lại.");
                 console.log("Login Failed");
               }}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="signin_with"
+              width="100%"
             />
           </Box>
+          {/* Footer nhỏ */}
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              mt: 3,
+              color: "#90a4ae",
+              fontSize: 13,
+              letterSpacing: 0.2,
+            }}
+          >
+            © {new Date().getFullYear()} Task Online. All rights reserved.
+          </Typography>
         </Paper>
       </Fade>
     </Box>
