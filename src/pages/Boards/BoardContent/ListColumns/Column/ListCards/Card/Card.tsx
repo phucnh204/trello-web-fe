@@ -4,6 +4,7 @@ import {
   DialogActions,
   DialogTitle,
   IconButton,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Card as MuiCard } from "@mui/material";
@@ -119,7 +120,7 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
 
       <CardContent sx={{ pb: 1, pt: 1 }}>
         {isEditing ? (
-          <input
+          <TextField
             value={title}
             autoFocus
             onChange={(e) => setTitle(e.target.value)}
@@ -131,7 +132,7 @@ const Card: React.FC<CardComponentProps> = ({ card }) => {
                 setIsEditing(false);
               }
             }}
-            style={{
+            sx={{
               fontWeight: 600,
               fontSize: 15,
               width: "100%",

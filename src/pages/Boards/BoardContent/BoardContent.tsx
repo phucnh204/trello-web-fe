@@ -306,50 +306,18 @@ const BoardContent: React.FC<BoardProps> = ({ board }) => {
           return newColumns;
         });
 
-        // Gọi API lưu DB khi kéo sang column khác
+        // Gọi API lưu DB khi kéo sang column khác, KHÔNG gọi lại getFullBoard
         try {
           cardAPI
             .moveCard(activeDraggingCardId.toString(), {
               newColumnId: overColumn._id,
               newPosition: newIndex,
             })
-            .then(() => {
-              // Đổi getBoard thành getFullBoard và dùng đúng kiểu dữ liệu
-              if (
-                typeof board._id === "string" &&
-                typeof boardAPI.getFullBoard === "function"
-              ) {
-                boardAPI
-                  .getFullBoard(board._id)
-                  .then((newBoard: BoardProps) => {
-                    // Thêm dòng này để debug dữ liệu trả về
-                    console.log("API trả về sau moveCard:", newBoard);
-
-                    const columnOrderIds: string[] = newBoard.board
-                      .columnOrderIds?.length
-                      ? newBoard.board.columnOrderIds
-                      : newBoard.board.columns.map((col) => col._id);
-
-                    const fixedColumns: IColumn[] = newBoard.board.columns.map(
-                      (column) => ({
-                        ...column,
-                        _id: column._id.toString(),
-                        cards: mapOrder(
-                          (column.cards || []) as ICard[],
-                          column.cardOrderIds,
-                          "_id"
-                        ),
-                      })
-                    );
-
-                    const ordered = mapOrder(
-                      fixedColumns,
-                      columnOrderIds,
-                      "_id"
-                    );
-                    setOrderedColumnsState(ordered);
-                  });
-              }
+            // .then(() => {
+            //   // Đã cập nhật state local, không cần gọi lại getFullBoard ở đây
+            // });
+            .catch((error: any) => {
+              console.error("Error moving card:", error);
             });
         } catch (error) {
           console.error("Error moving card:", error);
